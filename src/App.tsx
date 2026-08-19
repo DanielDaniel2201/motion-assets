@@ -46,7 +46,6 @@ export function App() {
           </span>
           <span className="motion-item-copy">
             <strong>Card Stack</strong>
-            <span>2–8 images</span>
           </span>
         </button>
         <button className="motion-item" type="button" onClick={() => navigate(progressBarDefinition.id)}>
@@ -66,7 +65,6 @@ export function App() {
           </span>
           <span className="motion-item-copy">
             <strong>Progress Bar</strong>
-            <span>Duration + chapters</span>
           </span>
         </button>
       </section>
