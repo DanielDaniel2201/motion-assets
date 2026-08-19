@@ -271,7 +271,7 @@ export function App() {
         </header>
         <section className="motion-library" aria-label="Motion library">
           <button className="motion-item" type="button" onClick={() => navigate(cardStackDefinition.id)}>
-            <span className="motion-item-preview" aria-hidden="true">
+            <span className="motion-item-preview card-stack-mini" aria-hidden="true">
               <i /><i /><i />
             </span>
             <span className="motion-item-copy">
