@@ -2,7 +2,9 @@
 
 A browser-local tool for creating reusable animated assets with real transparency.
 
-The first asset is **Card Stack**: add 2–8 images, arrange their order, tune a compact set of motion parameters, preview the deterministic animation, and export a 1920×1080 / 30 FPS ProRes 4444 MOV with an Alpha channel.
+The first asset is **Card Stack**: add 2–8 images, arrange their order, tune a compact set of motion parameters, preview the deterministic animation, and export a ProRes 4444 MOV with an Alpha channel.
+
+The second asset is **Progress Bar**: set a total duration, drop chapter / theme labels on timestamps, scale thickness and type, choose minor and major tick intervals, pick a color, and export the same transparent MOV for 16:9, 9:16, 4:3, 3:4, or 1:1.
 
 ## Run locally
 

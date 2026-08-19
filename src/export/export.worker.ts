@@ -2,43 +2,34 @@
 
 import { cardStackDefinition } from "../assets/card-stack/definition";
 import { renderCardStackFrame } from "../assets/card-stack/render";
+import { progressBarDefinition } from "../assets/progress-bar/definition";
+import { renderProgressBarFrame } from "../assets/progress-bar/render";
 import type { SourceImage } from "../assets/types";
-import type { CardStackExportRequest, ExportWorkerMessage } from "./types";
+import type { ExportRequest, ExportWorkerMessage } from "./types";
 
 function post(message: ExportWorkerMessage, transfer?: Transferable[]) {
   self.postMessage(message, { transfer });
 }
 
-self.onmessage = async (event: MessageEvent<CardStackExportRequest>) => {
+function isProgressBarRequest(
+  request: ExportRequest,
+): request is Extract<ExportRequest, { motion: "progress-bar" }> {
+  return request.motion === "progress-bar";
+}
+
+self.onmessage = async (event: MessageEvent<ExportRequest>) => {
   const request = event.data;
   if (request.type !== "export") return;
   const bitmaps: ImageBitmap[] = [];
   let encoder: Awaited<ReturnType<typeof import("prores-wasm-encoder")["createProResEncoder"]>> | null = null;
 
   try {
-    if (
-      request.images.length < cardStackDefinition.minInputCount
-      || request.images.length > cardStackDefinition.maxInputCount
-    ) {
-      throw new Error("Card Stack requires 2–8 images.");
-    }
     if (request.width % 2 || request.height % 2) {
       throw new Error("Export dimensions must be even numbers.");
     }
     if (typeof OffscreenCanvas === "undefined" || typeof createImageBitmap === "undefined") {
       throw new Error("This browser does not support local offscreen rendering. Use the latest Chrome.");
     }
-
-    for (const image of request.images) {
-      bitmaps.push(await createImageBitmap(image.file));
-    }
-    const sources: SourceImage[] = request.images.map((image, index) => ({
-      id: image.id,
-      name: image.name,
-      width: image.width,
-      height: image.height,
-      source: bitmaps[index],
-    }));
 
     const canvas = new OffscreenCanvas(request.width, request.height);
     const context = canvas.getContext("2d", {
@@ -57,17 +48,40 @@ self.onmessage = async (event: MessageEvent<CardStackExportRequest>) => {
       range: "limited",
     });
 
-    const duration = cardStackDefinition.getDuration(request.parameters, request.images.length);
+    let duration: number;
+    let draw: (time: number) => void;
+
+    if (isProgressBarRequest(request)) {
+      duration = progressBarDefinition.getDuration(request.parameters, 0);
+      draw = (time) => {
+        renderProgressBarFrame(context, request.width, request.height, request.parameters, time);
+      };
+    } else {
+      if (
+        request.images.length < cardStackDefinition.minInputCount
+        || request.images.length > cardStackDefinition.maxInputCount
+      ) {
+        throw new Error("Card Stack requires 2–8 images.");
+      }
+      for (const image of request.images) {
+        bitmaps.push(await createImageBitmap(image.file));
+      }
+      const sources: SourceImage[] = request.images.map((image, index) => ({
+        id: image.id,
+        name: image.name,
+        width: image.width,
+        height: image.height,
+        source: bitmaps[index],
+      }));
+      duration = cardStackDefinition.getDuration(request.parameters, request.images.length);
+      draw = (time) => {
+        renderCardStackFrame(context, request.width, request.height, sources, request.parameters, time);
+      };
+    }
+
     const totalFrames = Math.max(1, Math.ceil(duration * request.frameRate));
     for (let frame = 0; frame < totalFrames; frame += 1) {
-      renderCardStackFrame(
-        context,
-        request.width,
-        request.height,
-        sources,
-        request.parameters,
-        frame / request.frameRate,
-      );
+      draw(frame / request.frameRate);
       const rgba = context.getImageData(0, 0, request.width, request.height).data;
       encoder.addFrameRgba(rgba);
       if (frame % 2 === 0 || frame === totalFrames - 1) {

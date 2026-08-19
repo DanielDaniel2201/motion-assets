@@ -1,4 +1,4 @@
-import type { CardStackExportRequest, ExportWorkerMessage } from "./types";
+import type { ExportRequest, ExportWorkerMessage } from "./types";
 
 export type ExportProgress = {
   progress: number;
@@ -11,8 +11,8 @@ export type ExportTask = {
   cancel: () => void;
 };
 
-export function startCardStackExport(
-  request: CardStackExportRequest,
+export function startExport(
+  request: ExportRequest,
   onProgress: (progress: ExportProgress) => void,
 ): ExportTask {
   const worker = new Worker(new URL("./export.worker.ts", import.meta.url), {
@@ -64,10 +64,10 @@ export function startCardStackExport(
   };
 }
 
-export function createMovDownload(blob: Blob) {
+export function createMovDownload(blob: Blob, assetId = "motion-asset") {
   const url = URL.createObjectURL(blob);
   const stamp = new Date().toISOString().slice(0, 19).replaceAll(":", "-");
-  return { url, filename: `card-stack-${stamp}.mov` };
+  return { url, filename: `${assetId}-${stamp}.mov` };
 }
 
 export function triggerMovDownload(url: string, filename: string) {
