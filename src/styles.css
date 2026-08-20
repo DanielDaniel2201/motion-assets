@@ -52,7 +52,27 @@ button { color: inherit; }
 .asset-title strong { font-size: 14px; font-weight: 650; }
 
 .library-shell { min-height: 100vh; display: grid; grid-template-rows: 66px 1fr; background: #f3f3ef; }
-.library-topbar { grid-template-columns: 1fr; }
+.library-topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.github-link {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  margin-left: auto;
+  border-radius: 8px;
+  color: #92948c;
+  background: transparent;
+  text-decoration: none;
+  transition: background .15s ease, color .15s ease;
+}
+.github-link:hover { background: #efefe9; color: var(--ink); }
+.github-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.github-link svg { width: 18px; height: 18px; fill: currentColor; }
 .motion-library { display: grid; grid-template-columns: repeat(auto-fill, 220px); align-content: start; gap: 18px; padding: 32px; }
 .motion-item { display: grid; grid-template-rows: 1fr auto; width: 220px; aspect-ratio: 1; padding: 16px; overflow: hidden; border: 1px solid #dedfd8; border-radius: 16px; background: #fbfbf8; text-align: left; cursor: pointer; box-shadow: 0 4px 14px rgba(28,31,22,.04); transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
 .motion-item:hover { border-color: #b8bab0; box-shadow: 0 14px 34px rgba(28,31,22,.1); transform: translateY(-3px); }
@@ -299,6 +319,7 @@ h2 span { margin-left: 5px; color: #93958d; font-size: 10px; font-weight: 500; l
   .app-shell { grid-template-rows: 58px 1fr; }
   .library-shell { grid-template-rows: 58px 1fr; }
   .topbar { grid-template-columns: 1fr auto; height: 58px; padding-inline: 16px; }
+  .library-topbar { display: flex; }
   .asset-title { display: none; }
   .workspace { display: flex; min-height: 0; flex-direction: column; }
   .stage { order: 1; min-height: 52vh; padding: 18px 16px; }

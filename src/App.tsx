@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { cardStackDefinition } from "./assets/card-stack/definition";
 import { progressBarDefinition } from "./assets/progress-bar/definition";
 import { CardStackEditor } from "./components/CardStackEditor";
+import { GitHubIcon } from "./components/icons";
 import { ProgressBarEditor } from "./components/ProgressBarEditor";
+
+const GITHUB_REPO_URL = "https://github.com/DanielDaniel2201/motion-assets";
 
 export function App() {
   const [activeAsset, setActiveAsset] = useState(() => window.location.hash.slice(1));
@@ -38,6 +41,15 @@ export function App() {
           <span className="brand-mark"><i /><i /><i /></span>
           <span>Motion Assets</span>
         </div>
+        <a
+          className="github-link"
+          href={GITHUB_REPO_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Open the Motion Assets GitHub repository"
+        >
+          <GitHubIcon />
+        </a>
       </header>
       <section className="motion-library" aria-label="Motion library">
         <button className="motion-item" type="button" onClick={() => navigate(cardStackDefinition.id)}>
