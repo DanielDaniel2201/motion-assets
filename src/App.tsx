@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { cardStackDefinition } from "./assets/card-stack/definition";
+import { chatDialogDefinition } from "./assets/chat-dialog/definition";
 import { progressBarDefinition } from "./assets/progress-bar/definition";
 import { videoPipDefinition } from "./assets/video-pip/definition";
 import { CardStackEditor } from "./components/CardStackEditor";
+import { ChatDialogEditor } from "./components/ChatDialogEditor";
 import { GitHubIcon } from "./components/icons";
 import { ProgressBarEditor } from "./components/ProgressBarEditor";
 import { VideoPipEditor } from "./components/VideoPipEditor";
@@ -34,6 +36,10 @@ export function App() {
 
   if (activeAsset === progressBarDefinition.id) {
     return <ProgressBarEditor onBack={() => navigate("")} />;
+  }
+
+  if (activeAsset === chatDialogDefinition.id) {
+    return <ChatDialogEditor onBack={() => navigate("")} />;
   }
 
   if (activeAsset === videoPipDefinition.id) {
@@ -83,6 +89,12 @@ export function App() {
             <span className="video-pip-mini-cursor" />
           </span>
           <span className="motion-item-copy"><strong>Video PiP Drag</strong></span>
+        </button>
+        <button className="motion-item" type="button" onClick={() => navigate(chatDialogDefinition.id)}>
+          <span className="motion-item-preview chat-dialog-mini" aria-hidden="true">
+            <i /><span>今天的素材看过了吗？</span><i /><span>看过了。</span>
+          </span>
+          <span className="motion-item-copy"><strong>Chat Dialog</strong></span>
         </button>
       </section>
     </main>

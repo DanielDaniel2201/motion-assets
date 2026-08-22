@@ -2,6 +2,8 @@
 
 import { cardStackDefinition } from "../assets/card-stack/definition";
 import { renderCardStackFrame } from "../assets/card-stack/render";
+import { chatDialogDefinition } from "../assets/chat-dialog/definition";
+import { renderChatDialogFrame, type ChatAvatarSources } from "../assets/chat-dialog/render";
 import { progressBarDefinition } from "../assets/progress-bar/definition";
 import { renderProgressBarFrame } from "../assets/progress-bar/render";
 import { VIDEO_PIP_DRAG_START, videoPipDefinition } from "../assets/video-pip/definition";
@@ -23,6 +25,12 @@ function isVideoPipRequest(
   request: ExportRequest,
 ): request is Extract<ExportRequest, { motion: "video-pip" }> {
   return request.motion === "video-pip";
+}
+
+function isChatDialogRequest(
+  request: ExportRequest,
+): request is Extract<ExportRequest, { motion: "chat-dialog" }> {
+  return request.motion === "chat-dialog";
 }
 
 let pendingFrame: { id: string; resolve: (bitmap: ImageBitmap) => void } | null = null;
@@ -74,6 +82,24 @@ async function runExport(request: ExportRequest) {
       };
     } else if (isVideoPipRequest(request)) {
       duration = videoPipDefinition.getDuration(request.parameters, 1);
+    } else if (isChatDialogRequest(request)) {
+      if (!request.parameters.messages.length) throw new Error("Chat Dialog requires at least one message.");
+      const avatars: ChatAvatarSources = {};
+      for (const side of ["left", "right"] as const) {
+        const avatar = request.avatars[side];
+        if (!avatar) continue;
+        const bitmap = await createImageBitmap(avatar.file);
+        bitmaps.push(bitmap);
+        avatars[side] = {
+          id: `${side}-avatar`,
+          name: `${side} avatar`,
+          width: avatar.width,
+          height: avatar.height,
+          source: bitmap,
+        };
+      }
+      duration = chatDialogDefinition.getDuration(request.parameters, 0);
+      draw = (time) => renderChatDialogFrame(context, request.width, request.height, avatars, request.parameters, time);
     } else {
       if (
         request.images.length < cardStackDefinition.minInputCount

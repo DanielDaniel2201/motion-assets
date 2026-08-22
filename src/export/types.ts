@@ -1,4 +1,5 @@
 import type { CardStackParameters } from "../assets/card-stack/definition";
+import type { ChatDialogParameters } from "../assets/chat-dialog/definition";
 import type { ProgressBarParameters } from "../assets/progress-bar/definition";
 import type { VideoPipParameters } from "../assets/video-pip/definition";
 
@@ -35,7 +36,16 @@ export type VideoPipExportRequest = ExportRequestBase & {
   video: { width: number; height: number };
 };
 
-export type ExportRequest = CardStackExportRequest | ProgressBarExportRequest | VideoPipExportRequest;
+export type ChatDialogExportRequest = ExportRequestBase & {
+  motion: "chat-dialog";
+  parameters: ChatDialogParameters;
+  avatars: {
+    left?: { width: number; height: number; file: Blob };
+    right?: { width: number; height: number; file: Blob };
+  };
+};
+
+export type ExportRequest = CardStackExportRequest | ProgressBarExportRequest | VideoPipExportRequest | ChatDialogExportRequest;
 
 export type ExportWorkerInput = ExportRequest | {
   id: string;
