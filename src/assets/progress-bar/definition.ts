@@ -8,12 +8,11 @@ export type ProgressChapter = {
 
 export type ProgressBarParameters = {
   duration: number;
-  size: number;
-  barThickness: number;
+  separatorThickness: number;
   fontSize: number;
-  minorTickInterval: number;
-  majorTickInterval: number;
-  barColor: string;
+  fontFamily: string;
+  baseColor: string;
+  progressColor: string;
   chapters: ProgressChapter[];
 };
 
@@ -48,7 +47,7 @@ export function cloneProgressBarParameters(
 export const progressBarDefinition: MotionAssetDefinition<ProgressBarParameters> = {
   id: "progress-bar",
   name: "Progress Bar",
-  description: "A timed ruler overlay with chapter labels, ticks, and a real Alpha channel.",
+  description: "Evenly spaced chapter labels and separators with a left-to-right color reveal.",
   minInputCount: 0,
   maxInputCount: 0,
   width: 1920,
@@ -56,12 +55,11 @@ export const progressBarDefinition: MotionAssetDefinition<ProgressBarParameters>
   frameRate: 30,
   defaultParameters: {
     duration: 30,
-    size: 1,
-    barThickness: 1,
+    separatorThickness: 1,
     fontSize: 1,
-    minorTickInterval: 1,
-    majorTickInterval: 5,
-    barColor: "#ffffff",
+    fontFamily: "Segoe UI",
+    baseColor: "#ffffff",
+    progressColor: "#d9ff55",
     chapters: defaultProgressChapters,
   },
   getDuration(parameters) {

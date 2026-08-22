@@ -22,15 +22,19 @@ type ProgressBarEditorProps = {
   onBack: () => void;
 };
 
+type LocalFontData = { family: string };
+type LocalFontWindow = Window & { queryLocalFonts?: () => Promise<LocalFontData[]> };
+
+const DEFAULT_FONT_FAMILIES = ["Segoe UI", "Microsoft YaHei", "Arial", "SimHei", "KaiTi", "FangSong"];
+
 function nextChapterLabel(chapters: ProgressChapter[]) {
   return `章节 ${chapters.length + 1}`;
 }
 
-function suggestedChapterTime(chapters: ProgressChapter[], duration: number, majorTickInterval: number) {
+function suggestedChapterTime(chapters: ProgressChapter[], duration: number) {
   if (chapters.length === 0) return 0;
   const last = Math.max(...chapters.map((chapter) => chapter.time));
-  const step = majorTickInterval > 0 ? majorTickInterval : duration / 4;
-  return Math.min(duration, Number((last + step).toFixed(2)));
+  return Math.min(duration, Number((last + duration / 4).toFixed(2)));
 }
 
 export function ProgressBarEditor({ onBack }: ProgressBarEditorProps) {
@@ -43,6 +47,8 @@ export function ProgressBarEditor({ onBack }: ProgressBarEditorProps) {
   const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [exportResult, setExportResult] = useState<{ url: string; filename: string; size: number } | null>(null);
+  const [fontOptions, setFontOptions] = useState(DEFAULT_FONT_FAMILIES);
+  const [isLoadingFonts, setIsLoadingFonts] = useState(false);
   const [timeDrafts, setTimeDrafts] = useState<Record<string, string>>({});
   const exportTaskRef = useRef<ExportTask | null>(null);
   const exportResultRef = useRef(exportResult);
@@ -89,6 +95,26 @@ export function ProgressBarEditor({ onBack }: ProgressBarEditorProps) {
     }));
   };
 
+  const addChapter = () => {
+    if (parameters.chapters.length >= MAX_CHAPTERS) {
+      setError(`Progress Bar supports up to ${MAX_CHAPTERS} chapter labels.`);
+      return;
+    }
+    const chapter: ProgressChapter = {
+      id: crypto.randomUUID(),
+      time: suggestedChapterTime(parameters.chapters, parameters.duration),
+      label: nextChapterLabel(parameters.chapters),
+    };
+    updateParameters((current) => ({ ...current, chapters: [...current.chapters, chapter] }));
+  };
+
+  const removeChapter = (id: string) => {
+    updateParameters((current) => ({
+      ...current,
+      chapters: current.chapters.filter((chapter) => chapter.id !== id),
+    }));
+  };
+
   const commitChapterTime = (id: string, draft: string) => {
     const parsed = parseTimecode(draft);
     setTimeDrafts((current) => {
@@ -100,24 +126,24 @@ export function ProgressBarEditor({ onBack }: ProgressBarEditorProps) {
     updateChapter(id, { time: Math.max(0, Math.min(parameters.duration, parsed)) });
   };
 
-  const addChapter = () => {
-    if (parameters.chapters.length >= MAX_CHAPTERS) {
-      setError(`Progress Bar supports up to ${MAX_CHAPTERS} chapter labels.`);
+  const loadLocalFonts = async () => {
+    const queryLocalFonts = (window as LocalFontWindow).queryLocalFonts;
+    if (!queryLocalFonts) {
+      setError("This browser cannot list local fonts. Use current desktop Chrome or Edge.");
       return;
     }
-    const chapter: ProgressChapter = {
-      id: crypto.randomUUID(),
-      time: suggestedChapterTime(parameters.chapters, parameters.duration, parameters.majorTickInterval),
-      label: nextChapterLabel(parameters.chapters),
-    };
-    updateParameters((current) => ({ ...current, chapters: [...current.chapters, chapter] }));
-  };
-
-  const removeChapter = (id: string) => {
-    updateParameters((current) => ({
-      ...current,
-      chapters: current.chapters.filter((chapter) => chapter.id !== id),
-    }));
+    setError(null);
+    setIsLoadingFonts(true);
+    try {
+      const fonts = await queryLocalFonts.call(window);
+      const families = [...new Set(fonts.map((font) => font.family).filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b));
+      setFontOptions([...new Set([...DEFAULT_FONT_FAMILIES, ...families])]);
+    } catch (fontError) {
+      setError(fontError instanceof Error ? fontError.message : "Local font access was not granted.");
+    } finally {
+      setIsLoadingFonts(false);
+    }
   };
 
   const exportMov = async () => {
@@ -257,7 +283,7 @@ export function ProgressBarEditor({ onBack }: ProgressBarEditorProps) {
         </section>
 
         <aside className="panel controls-panel">
-          <div className="format-control">
+          <div className="format-control progress-format-control">
             <span>Aspect ratio</span>
             <div className="format-options" role="group" aria-label="MOV aspect ratio">
               {OUTPUT_FORMATS.map((format) => (
@@ -274,21 +300,9 @@ export function ProgressBarEditor({ onBack }: ProgressBarEditorProps) {
             </div>
           </div>
           <div className="parameters">
-            <label className="parameter duration-parameter">
-              <span className="parameter-label">
-                <span>Total duration</span>
-                <output>{duration.toFixed(1)}s</output>
-              </span>
-              <div className="duration-row">
-                <input
-                  type="range"
-                  min={MIN_DURATION}
-                  max={MAX_DURATION}
-                  step={0.5}
-                  value={parameters.duration}
-                  style={{ "--range-fill": `${((parameters.duration - MIN_DURATION) / (MAX_DURATION - MIN_DURATION)) * 100}%` } as React.CSSProperties}
-                  onChange={(event) => updateField("duration", Number(event.target.value), true)}
-                />
+            <label className="parameter-label duration-parameter">
+              <span>Total duration</span>
+              <span className="duration-input-wrap">
                 <input
                   className="duration-input"
                   type="number"
@@ -302,34 +316,72 @@ export function ProgressBarEditor({ onBack }: ProgressBarEditorProps) {
                     updateField("duration", Math.max(MIN_DURATION, Math.min(MAX_DURATION, next)), true);
                   }}
                 />
-              </div>
+                <span aria-hidden="true">s</span>
+              </span>
             </label>
-            <ParameterSlider label="Size" value={parameters.size} min={0.6} max={1.8} step={0.05} displayValue={`${Math.round(parameters.size * 100)}%`} onChange={(value) => updateField("size", value)} />
-            <ParameterSlider label="Thickness" value={parameters.barThickness} min={0.4} max={2.2} step={0.05} displayValue={`${Math.round(parameters.barThickness * 100)}%`} onChange={(value) => updateField("barThickness", value)} />
+            <ParameterSlider label="Separator thickness" value={parameters.separatorThickness} min={0.4} max={2.2} step={0.05} displayValue={`${Math.round(parameters.separatorThickness * 100)}%`} onChange={(value) => updateField("separatorThickness", value)} />
             <ParameterSlider label="Font size" value={parameters.fontSize} min={0.5} max={2} step={0.05} displayValue={`${Math.round(parameters.fontSize * 100)}%`} onChange={(value) => updateField("fontSize", value)} />
-            <ParameterSlider label="Minor tick" value={parameters.minorTickInterval} min={0.5} max={10} step={0.5} displayValue={`every ${parameters.minorTickInterval.toFixed(1)}s`} onChange={(value) => updateField("minorTickInterval", value)} />
-            <ParameterSlider label="Major tick" value={parameters.majorTickInterval} min={1} max={30} step={1} displayValue={`every ${parameters.majorTickInterval.toFixed(0)}s`} onChange={(value) => updateField("majorTickInterval", value)} />
+            <div className="font-control">
+              <label className="parameter-label" htmlFor="progress-font">Font</label>
+              <select
+                id="progress-font"
+                value={parameters.fontFamily}
+                style={{ fontFamily: parameters.fontFamily }}
+                onChange={(event) => updateField("fontFamily", event.target.value)}
+              >
+                {fontOptions.map((font) => <option key={font} value={font}>{font}</option>)}
+              </select>
+              <button type="button" onClick={() => void loadLocalFonts()} disabled={isLoadingFonts}>
+                {isLoadingFonts ? "Loading…" : "Load local fonts"}
+              </button>
+            </div>
             <div className="color-control">
               <span className="parameter-label">
-                <span>Bar color</span>
-                <output>{parameters.barColor}</output>
+                <span>Progress color</span>
+                <output>{parameters.progressColor}</output>
               </span>
               <div className="color-row">
                 <input
                   type="color"
-                  value={parameters.barColor}
-                  aria-label="Progress bar color"
-                  onChange={(event) => updateField("barColor", event.target.value)}
+                  value={parameters.progressColor}
+                  aria-label="Progress color"
+                  onChange={(event) => updateField("progressColor", event.target.value)}
                 />
-                <div className="color-presets" role="group" aria-label="Color presets">
+                <div className="color-presets" role="group" aria-label="Progress color presets">
                   {BAR_COLOR_PRESETS.map((preset) => (
                     <button
                       key={preset}
                       type="button"
-                      className={preset.toLowerCase() === parameters.barColor.toLowerCase() ? "selected" : ""}
+                      className={preset.toLowerCase() === parameters.progressColor.toLowerCase() ? "selected" : ""}
                       style={{ background: preset }}
                       aria-label={preset}
-                      onClick={() => updateField("barColor", preset)}
+                      onClick={() => updateField("progressColor", preset)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="color-control">
+              <span className="parameter-label">
+                <span>Base color</span>
+                <output>{parameters.baseColor}</output>
+              </span>
+              <div className="color-row">
+                <input
+                  type="color"
+                  value={parameters.baseColor}
+                  aria-label="Base color"
+                  onChange={(event) => updateField("baseColor", event.target.value)}
+                />
+                <div className="color-presets" role="group" aria-label="Base color presets">
+                  {BAR_COLOR_PRESETS.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      className={preset.toLowerCase() === parameters.baseColor.toLowerCase() ? "selected" : ""}
+                      style={{ background: preset }}
+                      aria-label={preset}
+                      onClick={() => updateField("baseColor", preset)}
                     />
                   ))}
                 </div>

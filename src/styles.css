@@ -118,52 +118,17 @@ button { color: inherit; }
   86%, 100% { transform: translate(-46%, -50%) rotate(5deg); }
 }
 
-.progress-bar-mini { display: grid; align-content: end; gap: 8px; padding: 18px 6px 22px; }
-.progress-bar-mini-ticks { display: flex; align-items: flex-end; justify-content: space-between; height: 22px; }
-.progress-bar-mini-ticks i { width: 1.5px; background: #c4c6bc; }
-.progress-bar-mini-ticks i:nth-child(odd) { height: 10px; }
-.progress-bar-mini-ticks i:nth-child(even) { height: 18px; background: #9fa197; }
-.progress-bar-mini-track {
-  position: relative;
-  height: 6px;
-  overflow: visible;
-  border-radius: 99px;
-  background: #e4e5de;
-}
-.progress-bar-mini-fill {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: inherit;
-  background: #171815;
-  transform-origin: left center;
-  animation: progress-bar-mini-fill 3.2s cubic-bezier(.45, 0, .18, 1) infinite;
-}
-.progress-bar-mini-head {
-  position: absolute;
-  top: 50%;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: #171815;
-  box-shadow: 0 0 0 2px #fbfbf8;
-  transform: translate(-50%, -50%);
-  animation: progress-bar-mini-head 3.2s cubic-bezier(.45, 0, .18, 1) infinite;
-}
-.progress-bar-mini-labels { display: flex; justify-content: space-between; color: #8d8f86; font-size: 9px; }
-.progress-bar-mini-labels em { font-style: normal; }
+.progress-bar-mini { display: grid; align-content: end; padding: 18px 6px 40px; }
+.progress-bar-mini-base { position: absolute; right: 6px; bottom: 40px; left: 6px; height: 28px; background: #fff; transform-origin: left; animation: progress-bar-mini-fill 3.2s linear infinite; }
+.progress-bar-mini-chapters { position: relative; display: grid; grid-template-columns: 8fr 2px 12fr 2px 10fr; align-items: center; color: #bce831; font-size: 11px; text-align: center; }
+.progress-bar-mini-chapters em { font-style: normal; }
+.progress-bar-mini-chapters i { position: static; width: 2px; height: 28px; border: 0; border-radius: 0; background: currentColor; box-shadow: none; }
 
 @keyframes progress-bar-mini-fill {
   0%, 8% { transform: scaleX(.08); }
-  72%, 82% { transform: scaleX(1); }
+  82% { transform: scaleX(1); }
   100% { transform: scaleX(.08); }
 }
-@keyframes progress-bar-mini-head {
-  0%, 8% { left: 8%; }
-  72%, 82% { left: 100%; }
-  100% { left: 8%; }
-}
-
 .workspace { min-height: calc(100vh - 66px); display: grid; grid-template-columns: 292px minmax(520px, 1fr) 292px; }
 .panel { min-width: 0; padding: 28px 24px 22px; background: var(--surface); }
 .assets-panel { border-right: 1px solid var(--line); }
@@ -234,6 +199,7 @@ h2 span { margin-left: 5px; color: #93958d; font-size: 10px; font-weight: 500; l
 .stage-meta span + span::before { content: "·"; margin-right: 17px; color: #b2b3ad; }
 
 .format-control { display: grid; gap: 10px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.progress-format-control { border-bottom: 0; }
 .format-control > span { color: #55574f; font-size: 12px; }
 .format-options { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
 .format-options button { min-width: 0; padding: 7px 2px; border: 1px solid #d9dad4; border-radius: 7px; background: #f7f7f3; color: #777970; font-size: 9px; cursor: pointer; }
@@ -247,9 +213,7 @@ h2 span { margin-left: 5px; color: #93958d; font-size: 10px; font-weight: 500; l
 .parameter input[type="range"] { appearance: none; width: 100%; height: 3px; margin: 0; border-radius: 99px; outline: none; background: linear-gradient(to right, var(--ink) 0 var(--range-fill), #dddeda var(--range-fill) 100%); }
 .parameter input[type="range"]::-webkit-slider-thumb { appearance: none; width: 15px; height: 15px; border: 3px solid #fff; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 1px rgba(0,0,0,.22), 0 2px 5px rgba(0,0,0,.18); cursor: grab; }
 .parameter input[type="range"]::-moz-range-thumb { width: 10px; height: 10px; border: 3px solid #fff; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 1px rgba(0,0,0,.22); cursor: grab; }
-.duration-row { display: grid; grid-template-columns: 1fr 62px; align-items: center; gap: 10px; }
-.duration-row input[type="range"] { appearance: none; width: 100%; height: 3px; margin: 0; border-radius: 99px; outline: none; background: linear-gradient(to right, var(--ink) 0 var(--range-fill), #dddeda var(--range-fill) 100%); }
-.duration-row input[type="range"]::-webkit-slider-thumb { appearance: none; width: 15px; height: 15px; border: 3px solid #fff; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 1px rgba(0,0,0,.22), 0 2px 5px rgba(0,0,0,.18); cursor: grab; }
+.duration-input-wrap { display: flex; align-items: center; gap: 5px; color: #8b8d84; font-size: 10px; }
 .duration-input { width: 62px; padding: 6px 7px; border: 1px solid #d5d6cf; border-radius: 7px; background: #f7f7f3; color: var(--ink); font-size: 11px; font-variant-numeric: tabular-nums; }
 .duration-input:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
 
@@ -271,6 +235,12 @@ h2 span { margin-left: 5px; color: #93958d; font-size: 10px; font-weight: 500; l
 .chapter-remove svg { width: 14px; height: 14px; }
 .add-chapter { padding: 10px 12px; border: 1px dashed #d0d2c8; border-radius: 9px; background: transparent; color: #6f7169; font-size: 12px; cursor: pointer; }
 .add-chapter:hover { border-color: #8d9085; background: #fff; color: var(--ink); }
+
+.font-control { display: grid; gap: 8px; }
+.font-control select, .font-control button { width: 100%; padding: 8px 9px; border: 1px solid #d5d6cf; border-radius: 7px; background: #f7f7f3; color: var(--ink); font-size: 11px; }
+.font-control select:focus, .font-control button:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.font-control button { cursor: pointer; }
+.font-control button:disabled { opacity: .5; cursor: wait; }
 
 .color-control { display: grid; gap: 10px; }
 .color-row { display: grid; grid-template-columns: 36px 1fr; gap: 10px; align-items: center; }
@@ -352,6 +322,5 @@ h2 span { margin-left: 5px; color: #93958d; font-size: 10px; font-weight: 500; l
   .card-stack-mini i:nth-child(1) { transform: translate(-70%, -50%) rotate(-12deg); }
   .card-stack-mini i:nth-child(2) { transform: translate(-50%, -54%) rotate(0deg); }
   .card-stack-mini i:nth-child(3) { transform: translate(-30%, -50%) rotate(12deg); }
-  .progress-bar-mini-fill { transform: scaleX(.62); animation: none; }
-  .progress-bar-mini-head { left: 62%; animation: none; }
+  .progress-bar-mini-base { transform: scaleX(.62); animation: none; }
 }

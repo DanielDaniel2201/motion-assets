@@ -62,17 +62,9 @@ export function App() {
         </button>
         <button className="motion-item" type="button" onClick={() => navigate(progressBarDefinition.id)}>
           <span className="motion-item-preview progress-bar-mini" aria-hidden="true">
-            <span className="progress-bar-mini-ticks">
-              <i /><i /><i /><i /><i /><i /><i /><i /><i />
-            </span>
-            <span className="progress-bar-mini-track">
-              <span className="progress-bar-mini-fill" />
-              <span className="progress-bar-mini-head" />
-            </span>
-            <span className="progress-bar-mini-labels">
-              <em>开场</em>
-              <em>主题</em>
-              <em>总结</em>
+            <span className="progress-bar-mini-base" />
+            <span className="progress-bar-mini-chapters">
+              <em>开场</em><i /><em>主题</em><i /><em>总结</em>
             </span>
           </span>
           <span className="motion-item-copy">

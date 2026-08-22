@@ -3,50 +3,25 @@ import type { ProgressBarParameters, ProgressChapter } from "./definition";
 export type ProgressBarMetrics = {
   unit: number;
   padX: number;
-  barY: number;
-  barWidth: number;
-  thickness: number;
-  radius: number;
+  centerY: number;
+  contentWidth: number;
   fontPx: number;
-  timeFontPx: number;
-  minorTickH: number;
-  majorTickH: number;
-  playheadR: number;
+  separatorWidth: number;
+  separatorHeight: number;
 };
 
-export type TickMark = {
-  time: number;
-  x: number;
-  major: boolean;
-};
-
-export type ChapterLayout = {
-  id: string;
-  time: number;
-  label: string;
+export type ChapterLayout = ProgressChapter & {
+  start: number;
+  end: number;
   x: number;
   y: number;
-  active: boolean;
-  reached: boolean;
-  appear: number;
 };
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 
-export function easeOutBack(value: number) {
-  const x = clamp01(value);
-  const c1 = 1.45;
-  const c3 = c1 + 1;
-  return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
-}
-
 export function getProgress(time: number, duration: number) {
   if (duration <= 0) return 1;
   return clamp01(time / duration);
-}
-
-export function nearTime(a: number, b: number, epsilon = 1e-6) {
-  return Math.abs(a - b) <= epsilon;
 }
 
 export function colorWithAlpha(hex: string, alpha: number) {
@@ -86,98 +61,30 @@ export function parseTimecode(input: string) {
   return minutes * 60 + seconds + fraction;
 }
 
-export function iterateIntervals(duration: number, interval: number) {
-  if (!(duration > 0)) return [0];
-  if (!(interval > 0)) return [0, duration];
-  const times: number[] = [];
-  const steps = Math.floor(duration / interval + 1e-9);
-  for (let index = 0; index <= steps; index += 1) {
-    times.push(Number((index * interval).toFixed(6)));
-  }
-  const last = times.at(-1) ?? 0;
-  if (duration - last > 1e-6) times.push(Number(duration.toFixed(6)));
-  return times;
-}
-
-export function isMajorTick(time: number, duration: number, majorInterval: number) {
-  if (nearTime(time, 0) || nearTime(time, duration)) return true;
-  if (!(majorInterval > 0)) return false;
-  const steps = time / majorInterval;
-  return Math.abs(steps - Math.round(steps)) < 1e-6;
-}
-
 export function getProgressBarMetrics(
   width: number,
   height: number,
   parameters: ProgressBarParameters,
 ): ProgressBarMetrics {
   const unit = Math.min(width, height) / 1080;
-  const scale = parameters.size;
-  const fontPx = 22 * unit * scale * parameters.fontSize;
-  const timeFontPx = Math.max(11 * unit * scale, fontPx * 0.58);
-  const thickness = Math.max(3 * unit, 7 * unit * scale * parameters.barThickness);
-  const minorTickH = 11 * unit * scale;
-  const majorTickH = 22 * unit * scale;
-  const playheadR = Math.max(thickness * 0.95, 7 * unit * scale);
-  const padX = Math.max(40 * unit * scale, width * 0.055);
-  const reservedBelow = timeFontPx + playheadR + 18 * unit * scale;
-  const reservedAbove = majorTickH + fontPx * 2.6 + 16 * unit * scale;
-  const preferredY = height * (height > width ? 0.8 : 0.855);
-  const barY = Math.min(
-    height - reservedBelow,
-    Math.max(reservedAbove, preferredY),
-  );
-
+  const fontPx = 48 * unit * parameters.fontSize;
+  const padX = Math.max(40 * unit, width * 0.04);
   return {
     unit,
     padX,
-    barY,
-    barWidth: Math.max(1, width - padX * 2),
-    thickness,
-    radius: thickness / 2,
+    centerY: height * (height > width ? 0.8 : 0.84),
+    contentWidth: Math.max(1, width - padX * 2),
     fontPx,
-    timeFontPx,
-    minorTickH,
-    majorTickH,
-    playheadR,
+    separatorWidth: Math.max(2 * unit, 4 * unit * parameters.separatorThickness),
+    separatorHeight: fontPx * 1.75,
   };
 }
 
-export function timeToX(time: number, duration: number, padX: number, barWidth: number) {
-  return padX + getProgress(time, duration) * barWidth;
+export function timeToX(time: number, duration: number, metrics: ProgressBarMetrics) {
+  return metrics.padX + getProgress(time, duration) * metrics.contentWidth;
 }
 
-export function getTickMarks(
-  duration: number,
-  minorInterval: number,
-  majorInterval: number,
-  padX: number,
-  barWidth: number,
-): TickMark[] {
-  const times = new Set<number>([0, Number(duration.toFixed(6))]);
-  for (const time of iterateIntervals(duration, minorInterval)) times.add(time);
-  for (const time of iterateIntervals(duration, majorInterval)) times.add(time);
-  return [...times]
-    .sort((a, b) => a - b)
-    .map((time) => ({
-      time,
-      x: timeToX(time, duration, padX, barWidth),
-      major: isMajorTick(time, duration, majorInterval),
-    }));
-}
-
-export function estimateLabelWidth(label: string, fontPx: number) {
-  let width = 0;
-  for (const character of label) {
-    width += /[\u3400-\u9fff]/.test(character) ? fontPx : fontPx * 0.56;
-  }
-  return width + fontPx * 0.35;
-}
-
-export function normalizeChapters(
-  chapters: ProgressChapter[],
-  duration: number,
-): ProgressChapter[] {
+export function normalizeChapters(chapters: ProgressChapter[], duration: number) {
   return chapters
     .map((chapter) => ({
       ...chapter,
@@ -189,40 +96,29 @@ export function normalizeChapters(
 
 export function getChapterLayouts(
   chapters: ProgressChapter[],
-  time: number,
   duration: number,
   metrics: ProgressBarMetrics,
 ): ChapterLayout[] {
-  const { padX, barWidth, barY, fontPx, majorTickH, unit } = metrics;
   const normalized = normalizeChapters(chapters, duration);
-  const activeId = [...normalized].reverse().find((chapter) => time + 1e-6 >= chapter.time)?.id;
-  const baseY = barY - majorTickH - fontPx * 0.55 - 8 * unit;
-  const placed: ChapterLayout[] = [];
+  return normalized.map((chapter, index) => {
+    const start = index === 0 ? 0 : chapter.time;
+    const end = normalized[index + 1]?.time ?? duration;
+    return {
+      ...chapter,
+      start,
+      end,
+      x: timeToX((start + end) / 2, duration, metrics),
+      y: metrics.centerY,
+    };
+  });
+}
 
-  for (const chapter of normalized) {
-    const reached = time + 1e-6 >= chapter.time;
-    const appear = easeOutBack((time - chapter.time) / 0.34);
-    const x = timeToX(chapter.time, duration, padX, barWidth);
-    let y = baseY;
-    const halfWidth = estimateLabelWidth(chapter.label || " ", fontPx) / 2;
-    for (const previous of placed) {
-      const previousHalf = estimateLabelWidth(previous.label || " ", fontPx) / 2;
-      const overlaps = Math.abs(x - previous.x) < halfWidth + previousHalf + fontPx * 0.4;
-      if (overlaps && Math.abs(y - previous.y) < fontPx * 1.05) {
-        y = previous.y - fontPx * 1.2;
-      }
-    }
-    placed.push({
-      id: chapter.id,
-      time: chapter.time,
-      label: chapter.label,
-      x,
-      y,
-      active: chapter.id === activeId,
-      reached,
-      appear,
-    });
-  }
-
-  return placed;
+export function getSeparatorXs(
+  chapters: ProgressChapter[],
+  duration: number,
+  metrics: ProgressBarMetrics,
+) {
+  return normalizeChapters(chapters, duration)
+    .slice(1)
+    .map((chapter) => timeToX(chapter.time, duration, metrics));
 }

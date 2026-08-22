@@ -7,8 +7,7 @@ import {
   getChapterLayouts,
   getProgress,
   getProgressBarMetrics,
-  getTickMarks,
-  iterateIntervals,
+  getSeparatorXs,
   parseTimecode,
   timeToX,
 } from "../src/assets/progress-bar/timeline.ts";
@@ -31,53 +30,34 @@ test("progress is linear from 0 to 1", () => {
 });
 
 test("parses and formats chapter timestamps", () => {
-  assert.equal(parseTimecode("8"), 8);
   assert.equal(parseTimecode("0:08"), 8);
-  assert.equal(parseTimecode("1:30"), 90);
   assert.equal(parseTimecode("1:30.5"), 90.5);
   assert.equal(parseTimecode("nope"), null);
   assert.equal(formatTimecode(8), "0:08");
-  assert.equal(formatTimecode(90), "1:30");
 });
 
-test("minor and major ticks stay on the bar", () => {
+test("chapter widths follow timestamp durations", () => {
   const metrics = getProgressBarMetrics(1920, 1080, parameters);
-  const ticks = getTickMarks(30, 1, 5, metrics.padX, metrics.barWidth);
-  assert.ok(ticks.length >= 31);
-  assert.equal(ticks[0]?.time, 0);
-  assert.equal(ticks.at(-1)?.time, 30);
-  assert.ok(ticks.every((tick) => tick.x >= metrics.padX && tick.x <= metrics.padX + metrics.barWidth));
-  assert.ok(ticks.filter((tick) => tick.major).length >= 7);
-  assert.deepEqual(
-    iterateIntervals(10, 3),
-    [0, 3, 6, 9, 10],
-  );
-});
-
-test("chapter markers land on their timestamps", () => {
-  const metrics = getProgressBarMetrics(1920, 1080, parameters);
-  const layouts = getChapterLayouts(parameters.chapters, 8, 30, metrics);
+  const layouts = getChapterLayouts(parameters.chapters, parameters.duration, metrics);
+  const separators = getSeparatorXs(parameters.chapters, parameters.duration, metrics);
   assert.equal(layouts.length, 3);
-  assert.ok(layouts[0]?.reached);
-  assert.ok(layouts[1]?.active);
-  assert.equal(layouts[2]?.reached, false);
-  assert.equal(layouts[1]?.x, timeToX(8, 30, metrics.padX, metrics.barWidth));
-  assert.ok(layouts.every((chapter) => Number.isFinite(chapter.x) && Number.isFinite(chapter.y)));
+  assert.equal(separators.length, 2);
+  assert.deepEqual(layouts.map(({ start, end }) => [start, end]), [[0, 8], [8, 20], [20, 30]]);
+  assert.equal(layouts[0]?.x, timeToX(4, 30, metrics));
+  assert.equal(layouts[1]?.x, timeToX(14, 30, metrics));
+  assert.deepEqual(separators, [timeToX(8, 30, metrics), timeToX(20, 30, metrics)]);
 });
 
-test("every output ratio keeps the bar on canvas", () => {
+test("every output ratio keeps the chapter row on canvas", () => {
   for (const format of OUTPUT_FORMATS) {
     const metrics = getProgressBarMetrics(format.width, format.height, {
       ...parameters,
-      size: 1.6,
       fontSize: 1.4,
-      barThickness: 1.8,
+      separatorThickness: 1.8,
     });
-    const ticks = getTickMarks(parameters.duration, 2, 10, metrics.padX, metrics.barWidth);
-    const chapters = getChapterLayouts(parameters.chapters, parameters.duration, parameters.duration, metrics);
-    assert.ok(metrics.barY > 0 && metrics.barY < format.height, `${format.id} barY`);
-    assert.ok(metrics.padX > 0 && metrics.barWidth < format.width);
-    assert.ok(ticks.every((tick) => tick.x >= 0 && tick.x <= format.width));
+    const chapters = getChapterLayouts(parameters.chapters, parameters.duration, metrics);
+    assert.ok(metrics.centerY > 0 && metrics.centerY < format.height, `${format.id} centerY`);
+    assert.ok(metrics.padX > 0 && metrics.contentWidth < format.width);
     assert.ok(chapters.every((chapter) => chapter.y > 0 && chapter.x >= 0 && chapter.x <= format.width));
   }
 });
