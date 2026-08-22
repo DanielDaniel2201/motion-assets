@@ -5,6 +5,7 @@ import {
   MAX_CHAPTERS,
   MAX_DURATION,
   MIN_DURATION,
+  parseProgressBarParameters,
   progressBarDefinition,
   type ProgressBarParameters,
   type ProgressChapter,
@@ -12,7 +13,7 @@ import {
 import { renderProgressBarFrame } from "../assets/progress-bar/render";
 import { formatTimecode, normalizeChapters, parseTimecode } from "../assets/progress-bar/timeline";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
-import { OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
+import { PROGRESS_BAR_OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
 import { ChevronLeftIcon, CloseIcon, ExportIcon, ReplayIcon } from "./icons";
 import { ExportStatus } from "./ExportStatus";
 import { ParameterSlider } from "./ParameterSlider";
@@ -26,6 +27,27 @@ type LocalFontData = { family: string };
 type LocalFontWindow = Window & { queryLocalFonts?: () => Promise<LocalFontData[]> };
 
 const DEFAULT_FONT_FAMILIES = ["Segoe UI", "Microsoft YaHei", "Arial", "SimHei", "KaiTi", "FangSong"];
+const DRAFT_STORAGE_KEY = "motion-assets:progress-bar-draft:v1";
+
+function loadDraft() {
+  const fallback = {
+    parameters: cloneProgressBarParameters(progressBarDefinition.defaultParameters),
+    outputFormatId: "16:9" as OutputFormatId,
+  };
+  try {
+    const draft = JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) ?? "null") as {
+      parameters?: unknown;
+      outputFormatId?: unknown;
+    } | null;
+    const parameters = parseProgressBarParameters(draft?.parameters);
+    const outputFormatId = PROGRESS_BAR_OUTPUT_FORMATS.some(({ id }) => id === draft?.outputFormatId)
+      ? draft!.outputFormatId as OutputFormatId
+      : fallback.outputFormatId;
+    return parameters ? { parameters, outputFormatId } : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 function nextChapterLabel(chapters: ProgressChapter[]) {
   return `章节 ${chapters.length + 1}`;
@@ -38,10 +60,9 @@ function suggestedChapterTime(chapters: ProgressChapter[], duration: number) {
 }
 
 export function ProgressBarEditor({ onBack }: ProgressBarEditorProps) {
-  const [parameters, setParameters] = useState<ProgressBarParameters>(() =>
-    cloneProgressBarParameters(progressBarDefinition.defaultParameters),
-  );
-  const [outputFormatId, setOutputFormatId] = useState<OutputFormatId>("16:9");
+  const [draft] = useState(loadDraft);
+  const [parameters, setParameters] = useState<ProgressBarParameters>(draft.parameters);
+  const [outputFormatId, setOutputFormatId] = useState<OutputFormatId>(draft.outputFormatId);
   const [replayToken, setReplayToken] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
@@ -54,12 +75,20 @@ export function ProgressBarEditor({ onBack }: ProgressBarEditorProps) {
   const exportResultRef = useRef(exportResult);
   exportResultRef.current = exportResult;
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({ parameters, outputFormatId }));
+    } catch {
+      setError("Could not save this Progress Bar draft in the browser.");
+    }
+  }, [parameters, outputFormatId]);
+
   useEffect(() => () => {
     exportTaskRef.current?.cancel();
     if (exportResultRef.current) URL.revokeObjectURL(exportResultRef.current.url);
   }, []);
 
-  const outputFormat = OUTPUT_FORMATS.find((format) => format.id === outputFormatId)!;
+  const outputFormat = PROGRESS_BAR_OUTPUT_FORMATS.find((format) => format.id === outputFormatId)!;
   const duration = progressBarDefinition.getDuration(parameters, 0);
   const chapters = normalizeChapters(parameters.chapters, parameters.duration);
 
@@ -286,7 +315,7 @@ export function ProgressBarEditor({ onBack }: ProgressBarEditorProps) {
           <div className="format-control progress-format-control">
             <span>Aspect ratio</span>
             <div className="format-options" role="group" aria-label="MOV aspect ratio">
-              {OUTPUT_FORMATS.map((format) => (
+              {PROGRESS_BAR_OUTPUT_FORMATS.map((format) => (
                 <button
                   type="button"
                   key={format.id}

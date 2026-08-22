@@ -17,8 +17,13 @@ export type ProgressBarParameters = {
 };
 
 export const MIN_DURATION = 3;
-export const MAX_DURATION = 90;
+export const MAX_DURATION = 600;
 export const MAX_CHAPTERS = 16;
+
+const isFiniteNumber = (value: unknown, min: number, max: number) =>
+  typeof value === "number" && Number.isFinite(value) && value >= min && value <= max;
+const isHexColor = (value: unknown): value is string =>
+  typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value);
 
 export const BAR_COLOR_PRESETS = [
   "#ffffff",
@@ -42,6 +47,30 @@ export function cloneProgressBarParameters(
     ...parameters,
     chapters: parameters.chapters.map((chapter) => ({ ...chapter })),
   };
+}
+
+export function parseProgressBarParameters(value: unknown): ProgressBarParameters | null {
+  if (!value || typeof value !== "object") return null;
+  const draft = value as Partial<ProgressBarParameters>;
+  if (
+    !isFiniteNumber(draft.duration, MIN_DURATION, MAX_DURATION)
+    || !isFiniteNumber(draft.separatorThickness, 0.4, 2.2)
+    || !isFiniteNumber(draft.fontSize, 0.5, 2)
+    || typeof draft.fontFamily !== "string"
+    || !draft.fontFamily
+    || !isHexColor(draft.baseColor)
+    || !isHexColor(draft.progressColor)
+    || !Array.isArray(draft.chapters)
+    || draft.chapters.length > MAX_CHAPTERS
+    || !draft.chapters.every((chapter) =>
+      chapter
+      && typeof chapter.id === "string"
+      && typeof chapter.label === "string"
+      && chapter.label.length <= 24
+      && isFiniteNumber(chapter.time, 0, draft.duration!),
+    )
+  ) return null;
+  return cloneProgressBarParameters(draft as ProgressBarParameters);
 }
 
 export const progressBarDefinition: MotionAssetDefinition<ProgressBarParameters> = {

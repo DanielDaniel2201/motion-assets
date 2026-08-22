@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createProResEncoder, ProResProfile } from "prores-wasm-encoder";
-import { OUTPUT_FORMATS } from "../src/export/formats.ts";
+import { OUTPUT_FORMATS, PROGRESS_BAR_OUTPUT_FORMATS } from "../src/export/formats.ts";
 
 test("MOV output formats use exact even-sized aspect ratios", () => {
   assert.deepEqual(OUTPUT_FORMATS.map(({ id }) => id), ["16:9", "9:16", "4:3", "3:4", "1:1"]);
@@ -11,6 +11,13 @@ test("MOV output formats use exact even-sized aspect ratios", () => {
     assert.equal(format.height % 2, 0);
     assert.equal(format.width * ratioHeight, format.height * ratioWidth);
   }
+});
+
+test("Progress Bar exports every aspect ratio at 720p", () => {
+  assert.deepEqual(
+    PROGRESS_BAR_OUTPUT_FORMATS.map(({ width, height }) => [width, height]),
+    [[1280, 720], [720, 1280], [960, 720], [720, 960], [720, 720]],
+  );
 });
 
 test("ProRes 4444 accepts every supported output ratio", async () => {

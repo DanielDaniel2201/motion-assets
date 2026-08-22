@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { progressBarDefinition } from "../src/assets/progress-bar/definition.ts";
+import { parseProgressBarParameters, progressBarDefinition } from "../src/assets/progress-bar/definition.ts";
 import {
   colorWithAlpha,
   formatTimecode,
@@ -11,7 +11,7 @@ import {
   parseTimecode,
   timeToX,
 } from "../src/assets/progress-bar/timeline.ts";
-import { OUTPUT_FORMATS } from "../src/export/formats.ts";
+import { PROGRESS_BAR_OUTPUT_FORMATS } from "../src/export/formats.ts";
 
 const parameters = progressBarDefinition.defaultParameters;
 
@@ -19,6 +19,18 @@ test("duration is the authored total length", () => {
   assert.equal(progressBarDefinition.getDuration({ ...parameters, duration: 42 }, 0), 42);
   assert.equal(progressBarDefinition.minInputCount, 0);
   assert.equal(progressBarDefinition.maxInputCount, 0);
+});
+
+test("restores only valid saved editor parameters", () => {
+  const saved = {
+    ...parameters,
+    duration: 143,
+    baseColor: "#123456",
+    chapters: [{ id: "summary", time: 143, label: "总结" }],
+  };
+  assert.deepEqual(parseProgressBarParameters(saved), saved);
+  assert.equal(parseProgressBarParameters({ ...saved, duration: "143" }), null);
+  assert.equal(parseProgressBarParameters({ ...saved, chapters: [{ ...saved.chapters[0], time: 144 }] }), null);
 });
 
 test("progress is linear from 0 to 1", () => {
@@ -49,7 +61,7 @@ test("chapter widths follow timestamp durations", () => {
 });
 
 test("every output ratio keeps the chapter row on canvas", () => {
-  for (const format of OUTPUT_FORMATS) {
+  for (const format of PROGRESS_BAR_OUTPUT_FORMATS) {
     const metrics = getProgressBarMetrics(format.width, format.height, {
       ...parameters,
       fontSize: 1.4,
