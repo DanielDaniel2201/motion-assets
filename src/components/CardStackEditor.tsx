@@ -344,7 +344,7 @@ export function CardStackEditor({ onBack }: CardStackEditorProps) {
           />
         </section>
 
-        <aside className="panel controls-panel">
+        <aside className="panel controls-panel no-format-divider">
           <div className="format-control">
             <span>Aspect ratio</span>
             <div className="format-options" role="group" aria-label="MOV aspect ratio">
