@@ -6,6 +6,8 @@ The first asset is **Card Stack**: add 2–8 images, arrange their order, tune a
 
 The second asset is **Progress Bar**: set a total duration, drop chapter / theme labels on timestamps, scale thickness and type, choose minor and major tick intervals, pick a color, and export the same transparent MOV for 16:9, 9:16, 4:3, 3:4, or 1:1.
 
+**Video PiP Drag** accepts one browser-readable video up to 15 seconds. A cursor moves from center to a safe upper-left anchor, then reveals the playing video by dragging a ratio-preserving rectangle toward the lower right. Drag speed is adjustable; MOV output is transparent and silent.
+
 ## Run locally
 
 ```bash

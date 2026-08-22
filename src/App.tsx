@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { cardStackDefinition } from "./assets/card-stack/definition";
 import { progressBarDefinition } from "./assets/progress-bar/definition";
+import { videoPipDefinition } from "./assets/video-pip/definition";
 import { CardStackEditor } from "./components/CardStackEditor";
 import { GitHubIcon } from "./components/icons";
 import { ProgressBarEditor } from "./components/ProgressBarEditor";
+import { VideoPipEditor } from "./components/VideoPipEditor";
 
 const GITHUB_REPO_URL = "https://github.com/DanielDaniel2201/motion-assets";
 
@@ -32,6 +34,10 @@ export function App() {
 
   if (activeAsset === progressBarDefinition.id) {
     return <ProgressBarEditor onBack={() => navigate("")} />;
+  }
+
+  if (activeAsset === videoPipDefinition.id) {
+    return <VideoPipEditor onBack={() => navigate("")} />;
   }
 
   return (
@@ -70,6 +76,13 @@ export function App() {
           <span className="motion-item-copy">
             <strong>Progress Bar</strong>
           </span>
+        </button>
+        <button className="motion-item" type="button" onClick={() => navigate(videoPipDefinition.id)}>
+          <span className="motion-item-preview video-pip-mini" aria-hidden="true">
+            <span className="video-pip-mini-window" />
+            <span className="video-pip-mini-cursor" />
+          </span>
+          <span className="motion-item-copy"><strong>Video PiP Drag</strong></span>
         </button>
       </section>
     </main>
