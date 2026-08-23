@@ -51,7 +51,7 @@ export function App() {
       <header className="topbar library-topbar">
         <div className="brand">
           <span className="brand-mark"><i /><i /><i /></span>
-          <span>Motion Assets</span>
+          <span>Motions</span>
         </div>
         <a
           className="github-link"
