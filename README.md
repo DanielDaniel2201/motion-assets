@@ -27,4 +27,8 @@ npm run verify
 
 The automated test generates a small real MOV and validates its QuickTime container, ProRes 4444 codec marker, dimensions, frame rate, duration, and Alpha-bearing pixel format with `ffprobe` when available. Final compatibility still requires importing a full-size exported file into the target Jianying version.
 
+## Contributing
+
+Have an idea or a demo? Start a [Discussion](https://github.com/DanielDaniel2201/motion-assets/discussions). Found a bug? Open an [Issue](https://github.com/DanielDaniel2201/motion-assets/issues). Ready to contribute an implementation? Read [CONTRIBUTING.md](CONTRIBUTING.md), fork the repository, and open a pull request.
+
 The bundled `sticker-forge/` checkout is reference-only and is not part of this app.
