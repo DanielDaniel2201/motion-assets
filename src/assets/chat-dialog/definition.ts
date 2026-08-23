@@ -24,10 +24,10 @@ export const MAX_CHAT_MESSAGES = 12;
 export const MAX_MESSAGE_LENGTH = 120;
 
 export const DEFAULT_CHAT_MESSAGES: ChatMessage[] = [
-  { id: "message-1", side: "left", text: "今天的素材看过了吗？" },
-  { id: "message-2", side: "left", text: "第二版的节奏更顺。" },
-  { id: "message-3", side: "right", text: "看过了，我就用第二版。" },
-  { id: "message-4", side: "left", text: "好，晚点发你成片。" },
+  { id: "message-1", side: "left", text: "Did you review today's footage?" },
+  { id: "message-2", side: "left", text: "The pacing in version two feels better." },
+  { id: "message-3", side: "right", text: "I did. Let's use version two." },
+  { id: "message-4", side: "left", text: "Great, I'll send the final cut later." },
 ];
 
 export function cloneChatDialogParameters(parameters: ChatDialogParameters): ChatDialogParameters {

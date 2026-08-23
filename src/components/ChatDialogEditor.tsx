@@ -100,7 +100,7 @@ export function ChatDialogEditor({ onBack }: ChatDialogEditorProps) {
     const lastSide = parameters.messages.at(-1)?.side ?? "left";
     updateParameters((current) => ({
       ...current,
-      messages: [...current.messages, { id: crypto.randomUUID(), side: lastSide, text: "新消息" }],
+      messages: [...current.messages, { id: crypto.randomUUID(), side: lastSide, text: "New message" }],
     }));
   };
 
@@ -203,7 +203,7 @@ export function ChatDialogEditor({ onBack }: ChatDialogEditorProps) {
                   }} />
                   <span>{avatars[side] ? "Replace" : "Upload"}</span>
                 </label>
-                <div><strong>{side === "left" ? "Left avatar" : "Right avatar"}</strong><small>{avatars[side]?.file.name ?? "Default color"}</small></div>
+                <div><strong>{side === "left" ? "Left avatar" : "Right avatar"}</strong>{avatars[side] && <small>{avatars[side].file.name}</small>}</div>
                 {avatars[side] && <button type="button" onClick={() => removeAvatar(side)} aria-label={`Restore ${side} default avatar`}><CloseIcon /></button>}
               </div>
             ))}
@@ -251,11 +251,9 @@ export function ChatDialogEditor({ onBack }: ChatDialogEditorProps) {
             {([
               ["leftBubbleColor", "Left bubble"],
               ["rightBubbleColor", "Right bubble"],
-              ["leftAvatarColor", "Left avatar"],
-              ["rightAvatarColor", "Right avatar"],
             ] as const).map(([key, label]) => (
               <label className="chat-color-field" key={key}>
-                <span className="parameter-label"><span>{label}</span><output>{parameters[key]}</output></span>
+                <span className="parameter-label">{label}</span>
                 <input type="color" value={parameters[key]} onChange={(event) => updateField(key, event.target.value)} />
               </label>
             ))}

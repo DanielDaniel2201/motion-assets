@@ -35,9 +35,9 @@ export const BAR_COLOR_PRESETS = [
 ] as const;
 
 export const defaultProgressChapters: ProgressChapter[] = [
-  { id: "chapter-intro", time: 0, label: "开场" },
-  { id: "chapter-topic", time: 8, label: "主题" },
-  { id: "chapter-outro", time: 20, label: "总结" },
+  { id: "chapter-intro", time: 0, label: "Intro" },
+  { id: "chapter-topic", time: 8, label: "Topic" },
+  { id: "chapter-outro", time: 20, label: "Outro" },
 ];
 
 export function cloneProgressBarParameters(

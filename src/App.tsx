@@ -76,7 +76,7 @@ export function App() {
           <span className="motion-item-preview progress-bar-mini" aria-hidden="true">
             <span className="progress-bar-mini-base" />
             <span className="progress-bar-mini-chapters">
-              <em>开场</em><i /><em>主题</em><i /><em>总结</em>
+              <em>Intro</em><i /><em>Topic</em><i /><em>Outro</em>
             </span>
           </span>
           <span className="motion-item-copy">
@@ -92,7 +92,7 @@ export function App() {
         </button>
         <button className="motion-item" type="button" onClick={() => navigate(chatDialogDefinition.id)}>
           <span className="motion-item-preview chat-dialog-mini" aria-hidden="true">
-            <i /><span>今天的素材看过了吗？</span><i /><span>看过了。</span>
+            <i /><span>Review the footage?</span><i /><span>Looks good.</span>
           </span>
           <span className="motion-item-copy"><strong>Chat Dialog</strong></span>
         </button>

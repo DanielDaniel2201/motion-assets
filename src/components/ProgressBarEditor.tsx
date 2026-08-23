@@ -50,7 +50,7 @@ function loadDraft() {
 }
 
 function nextChapterLabel(chapters: ProgressChapter[]) {
-  return `章节 ${chapters.length + 1}`;
+  return `Chapter ${chapters.length + 1}`;
 }
 
 function suggestedChapterTime(chapters: ProgressChapter[], duration: number) {
