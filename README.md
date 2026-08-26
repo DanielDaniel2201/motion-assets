@@ -10,6 +10,9 @@ A browser-local tool for creating animated assets with a real alpha channel — 
 - **Progress Bar** — chapter labels on timestamps, adjustable ticks, thickness and color, five aspect ratios.
 - **Chat Dialog** — left/right conversation with avatars, bubble colors, fonts and reveal timing.
 - **Video PiP Drag** — a cursor drags open a video rectangle (up to 15 s), ratio-preserving, silent output.
+- **Blur Text** — reveal words from blur with adjustable timing, font, and color.
+- **Count Up** — animate formatted values with prefixes, suffixes, and decimals.
+- **Logo Loop** — loop uploaded SVG/transparent images or the bundled ChatGPT, Claude, Grok, and Gemini logos.
 
 All assets share the same preview and export path: what you see is the MOV you get.
 

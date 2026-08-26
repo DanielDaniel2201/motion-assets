@@ -1,5 +1,8 @@
+import type { BlurTextParameters } from "../assets/blur-text/definition";
 import type { CardStackParameters } from "../assets/card-stack/definition";
 import type { ChatDialogParameters } from "../assets/chat-dialog/definition";
+import type { CountUpParameters } from "../assets/count-up/definition";
+import type { LogoLoopParameters } from "../assets/logo-loop/definition";
 import type { ProgressBarParameters } from "../assets/progress-bar/definition";
 import type { VideoPipParameters } from "../assets/video-pip/definition";
 
@@ -45,7 +48,23 @@ export type ChatDialogExportRequest = ExportRequestBase & {
   };
 };
 
-export type ExportRequest = CardStackExportRequest | ProgressBarExportRequest | VideoPipExportRequest | ChatDialogExportRequest;
+export type BlurTextExportRequest = ExportRequestBase & {
+  motion: "blur-text";
+  parameters: BlurTextParameters;
+};
+
+export type CountUpExportRequest = ExportRequestBase & {
+  motion: "count-up";
+  parameters: CountUpParameters;
+};
+
+export type LogoLoopExportRequest = ExportRequestBase & {
+  motion: "logo-loop";
+  parameters: LogoLoopParameters;
+  images: ExportImage[];
+};
+
+export type ExportRequest = CardStackExportRequest | ProgressBarExportRequest | VideoPipExportRequest | ChatDialogExportRequest | BlurTextExportRequest | CountUpExportRequest | LogoLoopExportRequest;
 
 export type ExportWorkerInput = ExportRequest | {
   id: string;
