@@ -1,9 +1,15 @@
 /// <reference lib="webworker" />
 
+import { blurTextDefinition } from "../assets/blur-text/definition";
+import { renderBlurTextFrame } from "../assets/blur-text/render";
 import { cardStackDefinition } from "../assets/card-stack/definition";
 import { renderCardStackFrame } from "../assets/card-stack/render";
 import { chatDialogDefinition } from "../assets/chat-dialog/definition";
 import { renderChatDialogFrame, type ChatAvatarSources } from "../assets/chat-dialog/render";
+import { countUpDefinition } from "../assets/count-up/definition";
+import { renderCountUpFrame } from "../assets/count-up/render";
+import { logoLoopDefinition } from "../assets/logo-loop/definition";
+import { renderLogoLoopFrame } from "../assets/logo-loop/render";
 import { progressBarDefinition } from "../assets/progress-bar/definition";
 import { renderProgressBarFrame } from "../assets/progress-bar/render";
 import { VIDEO_PIP_DRAG_START, videoPipDefinition } from "../assets/video-pip/definition";
@@ -31,6 +37,24 @@ function isChatDialogRequest(
   request: ExportRequest,
 ): request is Extract<ExportRequest, { motion: "chat-dialog" }> {
   return request.motion === "chat-dialog";
+}
+
+function isBlurTextRequest(
+  request: ExportRequest,
+): request is Extract<ExportRequest, { motion: "blur-text" }> {
+  return request.motion === "blur-text";
+}
+
+function isCountUpRequest(
+  request: ExportRequest,
+): request is Extract<ExportRequest, { motion: "count-up" }> {
+  return request.motion === "count-up";
+}
+
+function isLogoLoopRequest(
+  request: ExportRequest,
+): request is Extract<ExportRequest, { motion: "logo-loop" }> {
+  return request.motion === "logo-loop";
 }
 
 let pendingFrame: { id: string; resolve: (bitmap: ImageBitmap) => void } | null = null;
@@ -100,6 +124,27 @@ async function runExport(request: ExportRequest) {
       }
       duration = chatDialogDefinition.getDuration(request.parameters, 0);
       draw = (time) => renderChatDialogFrame(context, request.width, request.height, avatars, request.parameters, time);
+    } else if (isBlurTextRequest(request)) {
+      if (!request.parameters.text.trim()) throw new Error("Blur Text requires text.");
+      duration = blurTextDefinition.getDuration(request.parameters, 0);
+      draw = (time) => renderBlurTextFrame(context, request.width, request.height, request.parameters, time);
+    } else if (isCountUpRequest(request)) {
+      duration = countUpDefinition.getDuration(request.parameters, 0);
+      draw = (time) => renderCountUpFrame(context, request.width, request.height, request.parameters, time);
+    } else if (isLogoLoopRequest(request)) {
+      if (!request.images.length || request.images.length > logoLoopDefinition.maxInputCount) {
+        throw new Error("Logo Loop requires 1–12 images.");
+      }
+      for (const image of request.images) bitmaps.push(await createImageBitmap(image.file));
+      const sources: SourceImage[] = request.images.map((image, index) => ({
+        id: image.id,
+        name: image.name,
+        width: image.width,
+        height: image.height,
+        source: bitmaps[index],
+      }));
+      duration = logoLoopDefinition.getDuration(request.parameters, request.images.length);
+      draw = (time) => renderLogoLoopFrame(context, request.width, request.height, sources, request.parameters, time);
     } else {
       if (
         request.images.length < cardStackDefinition.minInputCount

@@ -27,7 +27,7 @@ type LocalFontData = { family: string };
 type LocalFontWindow = Window & { queryLocalFonts?: () => Promise<LocalFontData[]> };
 
 const DEFAULT_FONT_FAMILIES = ["Segoe UI", "Microsoft YaHei", "Arial", "SimHei", "KaiTi", "FangSong"];
-const DRAFT_STORAGE_KEY = "motion-assets:progress-bar-draft:v1";
+const DRAFT_STORAGE_KEY = "motion-assets:progress-bar-draft:v2";
 
 function loadDraft() {
   const fallback = {

@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
+import { blurTextDefinition } from "./assets/blur-text/definition";
 import { cardStackDefinition } from "./assets/card-stack/definition";
 import { chatDialogDefinition } from "./assets/chat-dialog/definition";
+import { countUpDefinition } from "./assets/count-up/definition";
+import { logoLoopDefinition } from "./assets/logo-loop/definition";
 import { progressBarDefinition } from "./assets/progress-bar/definition";
 import { videoPipDefinition } from "./assets/video-pip/definition";
+import { BlurTextEditor } from "./components/BlurTextEditor";
 import { CardStackEditor } from "./components/CardStackEditor";
 import { ChatDialogEditor } from "./components/ChatDialogEditor";
+import { CountUpEditor } from "./components/CountUpEditor";
 import { GitHubIcon } from "./components/icons";
+import { LogoLoopEditor } from "./components/LogoLoopEditor";
 import { ProgressBarEditor } from "./components/ProgressBarEditor";
 import { VideoPipEditor } from "./components/VideoPipEditor";
 
@@ -44,6 +50,18 @@ export function App() {
 
   if (activeAsset === videoPipDefinition.id) {
     return <VideoPipEditor onBack={() => navigate("")} />;
+  }
+
+  if (activeAsset === blurTextDefinition.id) {
+    return <BlurTextEditor onBack={() => navigate("")} />;
+  }
+
+  if (activeAsset === countUpDefinition.id) {
+    return <CountUpEditor onBack={() => navigate("")} />;
+  }
+
+  if (activeAsset === logoLoopDefinition.id) {
+    return <LogoLoopEditor onBack={() => navigate("")} />;
   }
 
   return (
@@ -95,6 +113,18 @@ export function App() {
             <i /><span>Review the footage?</span><i /><span>Looks good.</span>
           </span>
           <span className="motion-item-copy"><strong>Chat Dialog</strong></span>
+        </button>
+        <button className="motion-item" type="button" onClick={() => navigate(blurTextDefinition.id)}>
+          <span className="motion-item-preview blur-text-mini" aria-hidden="true"><span>Focus</span></span>
+          <span className="motion-item-copy"><strong>Blur Text</strong></span>
+        </button>
+        <button className="motion-item" type="button" onClick={() => navigate(countUpDefinition.id)}>
+          <span className="motion-item-preview count-up-mini" aria-hidden="true"><span /></span>
+          <span className="motion-item-copy"><strong>Count Up</strong></span>
+        </button>
+        <button className="motion-item" type="button" onClick={() => navigate(logoLoopDefinition.id)}>
+          <span className="motion-item-preview logo-loop-mini" aria-hidden="true"><span>✦</span><span>◉</span><span>◆</span><span>✺</span><span>✦</span><span>◉</span></span>
+          <span className="motion-item-copy"><strong>Logo Loop</strong></span>
         </button>
       </section>
     </main>

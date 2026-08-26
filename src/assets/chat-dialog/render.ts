@@ -1,6 +1,6 @@
 import type { SourceImage } from "../types";
 import type { ChatDialogParameters, ChatMessage } from "./definition";
-import { getCenteredBlockTop, getMessageProgress } from "./timeline";
+import { getCenteredBlockTop, getContrastTextColor, getMessageProgress } from "./timeline";
 
 type RenderContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 export type ChatAvatarSources = { left?: SourceImage; right?: SourceImage };
@@ -77,6 +77,13 @@ function drawAvatar(
     const height = source.height * scale;
     context.drawImage(source.source, x - width / 2, y - height / 2, width, height);
   }
+  context.restore();
+  context.save();
+  context.beginPath();
+  context.arc(x, y, size / 2, 0, Math.PI * 2);
+  context.strokeStyle = "#d4d4d4";
+  context.lineWidth = Math.max(1, size * 0.025);
+  context.stroke();
   context.restore();
 }
 
@@ -163,7 +170,7 @@ export function renderChatDialogFrame(
     context.fill();
 
     context.font = font;
-    context.fillStyle = "#171815";
+    context.fillStyle = getContrastTextColor(isLeft ? parameters.leftBubbleColor : parameters.rightBubbleColor);
     context.textAlign = "left";
     context.textBaseline = "top";
     for (let lineIndex = 0; lineIndex < layout.lines.length; lineIndex += 1) {
