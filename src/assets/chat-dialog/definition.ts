@@ -52,10 +52,10 @@ export const chatDialogDefinition: MotionAssetDefinition<ChatDialogParameters> =
     fontFamily: "Microsoft YaHei",
     messageInterval: 0.9,
     verticalGap: 0.35,
-    leftAvatarColor: "#171815",
+    leftAvatarColor: "#000000",
     rightAvatarColor: "#ffffff",
-    leftBubbleColor: "#dedfd8",
-    rightBubbleColor: "#b8bab0",
+    leftBubbleColor: "#000000",
+    rightBubbleColor: "#f2f2f2",
   },
   getDuration(parameters) {
     return Math.max(1.8, Math.max(0, parameters.messages.length - 1) * parameters.messageInterval + 2.1);

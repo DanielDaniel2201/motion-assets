@@ -75,7 +75,7 @@ test("every output ratio keeps the chapter row on canvas", () => {
 });
 
 test("bar defaults and presets stay monochrome", () => {
-  assert.deepEqual([parameters.baseColor, parameters.progressColor], ["#ffffff", "#171815"]);
-  assert.equal(colorWithAlpha("#171815", 0.5), "rgba(23,24,21,0.5)");
+  assert.deepEqual([parameters.baseColor, parameters.progressColor], ["#ffffff", "#000000"]);
+  assert.equal(colorWithAlpha("#000000", 0.5), "rgba(0,0,0,0.5)");
   assert.equal(colorWithAlpha("#fff", 1), "rgba(255,255,255,1)");
 });

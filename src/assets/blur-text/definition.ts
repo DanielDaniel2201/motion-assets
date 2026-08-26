@@ -32,7 +32,7 @@ export const blurTextDefinition: MotionAssetDefinition<BlurTextParameters> = {
     splitBy: "word",
     fontSize: 1,
     fontFamily: "Segoe UI",
-    color: "#171815",
+    color: "#000000",
   },
   getDuration(parameters) {
     return parameters.duration;
