@@ -73,8 +73,8 @@ button { color: inherit; }
 .github-link:hover { background: #efefe9; color: var(--ink); }
 .github-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .github-link svg { width: 18px; height: 18px; fill: currentColor; }
-.motion-library { display: grid; grid-template-columns: repeat(auto-fill, 220px); align-content: start; gap: 18px; padding: 32px; }
-.motion-item { display: grid; grid-template-rows: 1fr auto; width: 220px; aspect-ratio: 1; padding: 16px; overflow: hidden; border: 1px solid #dedfd8; border-radius: 16px; background: #fbfbf8; text-align: left; cursor: pointer; box-shadow: 0 4px 14px rgba(28,31,22,.04); transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+.motion-library { display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 18px; padding: 32px; }
+.motion-item { display: grid; grid-template-rows: 1fr auto; flex: 1 1 220px; width: auto; max-width: 280px; aspect-ratio: 1; padding: 16px; overflow: hidden; border: 1px solid #dedfd8; border-radius: 16px; background: #fbfbf8; text-align: left; cursor: pointer; box-shadow: 0 4px 14px rgba(28,31,22,.04); transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
 .motion-item:hover { border-color: #b8bab0; box-shadow: 0 14px 34px rgba(28,31,22,.1); transform: translateY(-3px); }
 .motion-item:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .motion-item-preview { position: relative; display: block; min-height: 138px; overflow: hidden; pointer-events: none; }
@@ -451,8 +451,8 @@ h2 span { margin-left: 5px; color: #93958d; font-size: 10px; font-weight: 500; l
   .stage-meta span + span::before { margin-right: 8px; }
   .image-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .parameters { grid-template-columns: 1fr; }
-  .motion-library { grid-template-columns: 1fr; padding: 20px; }
-  .motion-item { width: min(220px, 100%); }
+  .motion-library { padding: 20px; }
+  .motion-item { flex-basis: 100%; width: 100%; max-width: 300px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
