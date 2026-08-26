@@ -7,6 +7,10 @@ import { getCenteredBlockTop, getMessageProgress } from "../src/assets/chat-dial
 test("messages reveal in order while the visible block remains centered", () => {
   const parameters = cloneChatDialogParameters(chatDialogDefinition.defaultParameters);
   assert.deepEqual(parameters.messages.slice(0, 2).map((message) => message.side), ["left", "left"]);
+  assert.deepEqual(
+    [parameters.leftAvatarColor, parameters.rightAvatarColor, parameters.leftBubbleColor, parameters.rightBubbleColor],
+    ["#171815", "#ffffff", "#dedfd8", "#b8bab0"],
+  );
   assert.equal(getMessageProgress(1, parameters.messageInterval - 0.01, parameters.messageInterval), 0);
   assert.equal(getMessageProgress(1, parameters.messageInterval + 1, parameters.messageInterval), 1);
   assert.equal(getCenteredBlockTop(1080, 400), 340);

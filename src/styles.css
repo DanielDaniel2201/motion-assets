@@ -8,8 +8,8 @@
   --muted: #777971;
   --line: #dedfd8;
   --surface: #fbfbf8;
-  --accent: #d9ff55;
-  --accent-dark: #bce831;
+  --accent: #dedfd8;
+  --accent-dark: #171815;
 }
 
 * { box-sizing: border-box; }
@@ -96,8 +96,8 @@ button { color: inherit; }
 }
 .card-stack-mini i:nth-child(3) {
   z-index: 3;
-  border-color: #c4c7bb;
-  background: #e7ff92;
+  border-color: #aeb1a6;
+  background: #d8d9d3;
   transform: translate(-46%, -50%) rotate(5deg);
   animation: card-stack-mini-right 3.6s cubic-bezier(.45, 0, .18, 1) infinite;
 }
@@ -119,8 +119,8 @@ button { color: inherit; }
 }
 
 .progress-bar-mini { display: grid; align-content: center; padding: 0 6px; }
-.progress-bar-mini-base { position: absolute; right: 6px; bottom: calc(50% - 14px); left: 6px; height: 28px; background: #fff; transform-origin: left; animation: progress-bar-mini-fill 3.2s linear infinite; }
-.progress-bar-mini-chapters { position: relative; display: grid; grid-template-columns: 8fr 2px 12fr 2px 10fr; align-items: center; color: #bce831; font-size: 11px; text-align: center; }
+.progress-bar-mini-base { position: absolute; right: 6px; bottom: calc(50% - 14px); left: 6px; height: 28px; background: #d8d9d3; transform-origin: left; animation: progress-bar-mini-fill 3.2s linear infinite; }
+.progress-bar-mini-chapters { position: relative; display: grid; grid-template-columns: 8fr 2px 12fr 2px 10fr; align-items: center; color: #171815; font-size: 11px; text-align: center; }
 .progress-bar-mini-chapters em { font-style: normal; }
 .progress-bar-mini-chapters i { position: static; width: 2px; height: 28px; border: 0; border-radius: 0; background: currentColor; box-shadow: none; }
 
@@ -137,7 +137,7 @@ button { color: inherit; }
   aspect-ratio: 16 / 9;
   border: 1px solid #aeb1a6;
   border-radius: 8px;
-  background: linear-gradient(135deg, #d9ff55, #a9d8ff);
+  background: linear-gradient(135deg, #e7e7e3, #9fa19a);
   box-shadow: 0 9px 20px rgba(24,26,20,.12);
   transform-origin: left top;
   animation: video-pip-mini-window 3.4s cubic-bezier(.65, 0, .35, 1) infinite;
@@ -168,13 +168,13 @@ button { color: inherit; }
 .chat-dialog-mini i {
   width: 26px;
   height: 26px;
-  border: 0;
+  border: 1px solid #b8bab0;
   border-radius: 50%;
   box-shadow: none;
   animation: chat-dialog-mini-in 3s ease infinite;
 }
-.chat-dialog-mini i:nth-of-type(1) { left: 8px; top: 36px; background: #a9d8ff; }
-.chat-dialog-mini i:nth-of-type(2) { right: 8px; left: auto; top: 82px; background: #d9ff55; animation-delay: .65s; }
+.chat-dialog-mini i:nth-of-type(1) { left: 8px; top: 36px; border-color: #171815; background: #171815; }
+.chat-dialog-mini i:nth-of-type(2) { right: 8px; left: auto; top: 82px; background: #fff; animation-delay: .65s; }
 .chat-dialog-mini > span {
   position: absolute;
   max-width: 120px;
@@ -185,8 +185,8 @@ button { color: inherit; }
   line-height: 1.35;
   animation: chat-dialog-mini-in 3s ease infinite;
 }
-.chat-dialog-mini > span:nth-of-type(1) { left: 42px; top: 32px; background: #f3f9ff; }
-.chat-dialog-mini > span:nth-of-type(2) { right: 42px; top: 78px; background: #f7ffe0; animation-delay: .65s; }
+.chat-dialog-mini > span:nth-of-type(1) { left: 42px; top: 32px; background: #dedfd8; }
+.chat-dialog-mini > span:nth-of-type(2) { right: 42px; top: 78px; background: #b8bab0; animation-delay: .65s; }
 @keyframes chat-dialog-mini-in {
   0%, 12% { opacity: 0; transform: translateY(6px); }
   28%, 78% { opacity: 1; transform: translateY(0); }

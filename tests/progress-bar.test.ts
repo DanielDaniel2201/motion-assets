@@ -74,7 +74,8 @@ test("every output ratio keeps the chapter row on canvas", () => {
   }
 });
 
-test("bar color keeps a usable alpha pair", () => {
-  assert.equal(colorWithAlpha("#d9ff55", 0.5), "rgba(217,255,85,0.5)");
+test("bar defaults and presets stay monochrome", () => {
+  assert.deepEqual([parameters.baseColor, parameters.progressColor], ["#ffffff", "#171815"]);
+  assert.equal(colorWithAlpha("#171815", 0.5), "rgba(23,24,21,0.5)");
   assert.equal(colorWithAlpha("#fff", 1), "rgba(255,255,255,1)");
 });

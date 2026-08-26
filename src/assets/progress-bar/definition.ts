@@ -26,12 +26,12 @@ const isHexColor = (value: unknown): value is string =>
   typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value);
 
 export const BAR_COLOR_PRESETS = [
+  "#171815",
+  "#464842",
+  "#777971",
+  "#b8bab0",
+  "#dedfd8",
   "#ffffff",
-  "#d9ff55",
-  "#ffd166",
-  "#5ce1e6",
-  "#ff6b6b",
-  "#c084fc",
 ] as const;
 
 export const defaultProgressChapters: ProgressChapter[] = [
@@ -88,7 +88,7 @@ export const progressBarDefinition: MotionAssetDefinition<ProgressBarParameters>
     fontSize: 1,
     fontFamily: "Segoe UI",
     baseColor: "#ffffff",
-    progressColor: "#d9ff55",
+    progressColor: "#171815",
     chapters: defaultProgressChapters,
   },
   getDuration(parameters) {

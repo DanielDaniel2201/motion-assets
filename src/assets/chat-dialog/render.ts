@@ -78,6 +78,13 @@ function drawAvatar(
     context.drawImage(source.source, x - width / 2, y - height / 2, width, height);
   }
   context.restore();
+  context.save();
+  context.beginPath();
+  context.arc(x, y, size / 2, 0, Math.PI * 2);
+  context.strokeStyle = "#777971";
+  context.lineWidth = Math.max(1, size * 0.025);
+  context.stroke();
+  context.restore();
 }
 
 export function renderChatDialogFrame(
