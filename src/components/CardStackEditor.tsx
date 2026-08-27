@@ -9,6 +9,7 @@ import { PreviewCanvas } from "./PreviewCanvas";
 import { ExportStatus } from "./ExportStatus";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
 import { OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
+import { formatExportEstimate } from "../export/estimate";
 
 type UploadedImage = {
   id: string;
@@ -23,11 +24,8 @@ type UploadedImage = {
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
 const MAX_PIXELS = 36_000_000;
 
-async function loadDemoPng(path: string, name: string) {
-  const response = await fetch(path);
-  if (!response.ok) throw new Error("Could not load the local demo images.");
-  const svg = await response.text();
-  const svgUrl = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
+async function rasterizeSvg(file: File) {
+  const svgUrl = URL.createObjectURL(file);
   try {
     const image = new Image();
     image.src = svgUrl;
@@ -36,15 +34,21 @@ async function loadDemoPng(path: string, name: string) {
     canvas.width = image.naturalWidth;
     canvas.height = image.naturalHeight;
     const context = canvas.getContext("2d");
-    if (!context) throw new Error("Could not create the local demo renderer.");
+    if (!context) throw new Error("Could not create the SVG renderer.");
     context.drawImage(image, 0, 0);
     const png = await new Promise<Blob>((resolve, reject) =>
-      canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Could not rasterize a demo image.")), "image/png"),
+      canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error(`Could not rasterize ${file.name}.`)), "image/png"),
     );
-    return new File([png], name, { type: "image/png" });
+    return new File([png], file.name.replace(/\.svg$/i, ".png"), { type: "image/png" });
   } finally {
     URL.revokeObjectURL(svgUrl);
   }
+}
+
+async function loadDemoPng(path: string, name: string) {
+  const response = await fetch(path);
+  if (!response.ok) throw new Error("Could not load the local demo images.");
+  return rasterizeSvg(new File([await response.blob()], name, { type: "image/svg+xml" }));
 }
 
 function imageSources(images: UploadedImage[]): SourceImage[] {
@@ -59,12 +63,15 @@ function imageSources(images: UploadedImage[]): SourceImage[] {
 
 type CardStackEditorProps = {
   onBack: () => void;
+  initialParameters?: Record<string, unknown>;
+  initialFormatId?: OutputFormatId;
+  initialFiles?: File[];
 };
 
-export function CardStackEditor({ onBack }: CardStackEditorProps) {
+export function CardStackEditor({ onBack, initialParameters, initialFormatId, initialFiles = [] }: CardStackEditorProps) {
   const [images, setImages] = useState<UploadedImage[]>([]);
-  const [parameters, setParameters] = useState<CardStackParameters>(cardStackDefinition.defaultParameters);
-  const [outputFormatId, setOutputFormatId] = useState<OutputFormatId>("16:9");
+  const [parameters, setParameters] = useState<CardStackParameters>(() => initialParameters as CardStackParameters ?? cardStackDefinition.defaultParameters);
+  const [outputFormatId, setOutputFormatId] = useState<OutputFormatId>(initialFormatId ?? "16:9");
   const [replayToken, setReplayToken] = useState(0);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +81,7 @@ export function CardStackEditor({ onBack }: CardStackEditorProps) {
   const exportTaskRef = useRef<ExportTask | null>(null);
   const exportResultRef = useRef(exportResult);
   const imagesRef = useRef(images);
+  const loadedInitialFilesRef = useRef(false);
   exportResultRef.current = exportResult;
   imagesRef.current = images;
 
@@ -142,7 +150,7 @@ export function CardStackEditor({ onBack }: CardStackEditorProps) {
     setReplayToken((token) => token + 1);
   };
 
-  const addFiles = async (fileList: FileList | null) => {
+  const addFiles = async (fileList: FileList | File[] | null) => {
     if (!fileList?.length) return;
     setError(null);
     const files = Array.from(fileList);
@@ -160,7 +168,8 @@ export function CardStackEditor({ onBack }: CardStackEditorProps) {
         if (file.size > MAX_FILE_BYTES) {
           throw new Error(`${file.name} is larger than 25 MB. Resize it before importing.`);
         }
-        const bitmap = await createImageBitmap(file);
+        const renderFile = file.type.includes("svg") || file.name.toLowerCase().endsWith(".svg") ? await rasterizeSvg(file) : file;
+        const bitmap = await createImageBitmap(renderFile);
         if (bitmap.width * bitmap.height > MAX_PIXELS) {
           bitmap.close();
           throw new Error(`${file.name} exceeds the 36-megapixel safety limit.`);
@@ -170,7 +179,7 @@ export function CardStackEditor({ onBack }: CardStackEditorProps) {
           name: file.name,
           width: bitmap.width,
           height: bitmap.height,
-          file,
+          file: renderFile,
           bitmap,
           thumbnailUrl: URL.createObjectURL(file),
         });
@@ -185,6 +194,12 @@ export function CardStackEditor({ onBack }: CardStackEditorProps) {
       setError(importError instanceof Error ? importError.message : "Chrome could not decode those images.");
     }
   };
+
+  useEffect(() => {
+    if (loadedInitialFilesRef.current) return;
+    loadedInitialFilesRef.current = true;
+    void addFiles(initialFiles);
+  }, [initialFiles]);
 
   const moveImage = (from: number, to: number) => {
     if (to < 0 || to >= images.length || from === to) return;
@@ -375,6 +390,7 @@ export function CardStackEditor({ onBack }: CardStackEditorProps) {
             <button className="export-button" type="button" disabled={!completed || isExporting} onClick={() => void exportMov()}>
               <ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}
             </button>
+            <p className="export-hint">Estimated export: {formatExportEstimate(duration, outputFormat.width, outputFormat.height, cardStackDefinition.frameRate)} · varies by device</p>
             {!completed && <p className="export-hint">Add at least two images to export.</p>}
           </div>
         </aside>

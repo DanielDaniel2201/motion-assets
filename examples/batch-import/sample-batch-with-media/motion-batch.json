@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "instances": [
+    {
+      "id": "card-stack-demo",
+      "name": "Three imported cards",
+      "motion": "card-stack",
+      "format": "9:16",
+      "parameters": {
+        "animationSpeed": 1.15,
+        "spread": 1.1,
+        "rotation": 0.9,
+        "stagger": 0.12,
+        "holdDuration": 1.8
+      },
+      "assets": [
+        "media/card-blue.svg",
+        "media/card-red.svg",
+        "media/card-yellow.svg"
+      ]
+    },
+    {
+      "id": "custom-logo-demo",
+      "name": "Two imported logos",
+      "motion": "logo-loop",
+      "format": "1:1",
+      "parameters": {
+        "duration": 5,
+        "speed": 0.2,
+        "logoSize": 0.18,
+        "gap": 0.12,
+        "fadeEdges": 0.08,
+        "positionY": 0.5,
+        "direction": "left"
+      },
+      "assets": [
+        "media/logo-orbit.svg",
+        "media/logo-spark.svg"
+      ]
+    }
+  ]
+}

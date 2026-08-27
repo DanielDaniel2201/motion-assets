@@ -7,6 +7,7 @@ import {
 import { renderVideoPipFrame } from "../assets/video-pip/render";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
 import { OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
+import { formatExportEstimate } from "../export/estimate";
 import { ChevronLeftIcon, CloseIcon, ExportIcon, ReplayIcon } from "./icons";
 import { ExportStatus } from "./ExportStatus";
 import { ParameterSlider } from "./ParameterSlider";
@@ -22,7 +23,7 @@ type UploadedVideo = {
   element: HTMLVideoElement;
 };
 
-type VideoPipEditorProps = { onBack: () => void };
+type VideoPipEditorProps = { onBack: () => void; initialParameters?: Record<string, unknown>; initialFormatId?: OutputFormatId; initialFiles?: File[] };
 
 const MAX_FILE_BYTES = 200 * 1024 * 1024;
 const MAX_DURATION = 15;
@@ -66,10 +67,10 @@ async function seekVideo(video: HTMLVideoElement, time: number) {
   });
 }
 
-export function VideoPipEditor({ onBack }: VideoPipEditorProps) {
+export function VideoPipEditor({ onBack, initialParameters, initialFormatId, initialFiles = [] }: VideoPipEditorProps) {
   const [video, setVideo] = useState<UploadedVideo | null>(null);
-  const [parameters, setParameters] = useState<VideoPipParameters>(videoPipDefinition.defaultParameters);
-  const [outputFormatId, setOutputFormatId] = useState<OutputFormatId>("16:9");
+  const [parameters, setParameters] = useState<VideoPipParameters>(() => initialParameters as VideoPipParameters ?? videoPipDefinition.defaultParameters);
+  const [outputFormatId, setOutputFormatId] = useState<OutputFormatId>(initialFormatId ?? "16:9");
   const [replayToken, setReplayToken] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
@@ -78,6 +79,7 @@ export function VideoPipEditor({ onBack }: VideoPipEditorProps) {
   const exportTaskRef = useRef<ExportTask | null>(null);
   const videoRef = useRef(video);
   const exportResultRef = useRef(exportResult);
+  const loadedInitialFilesRef = useRef(false);
   videoRef.current = video;
   exportResultRef.current = exportResult;
 
@@ -139,6 +141,12 @@ export function VideoPipEditor({ onBack }: VideoPipEditorProps) {
       setError(importError instanceof Error ? importError.message : "Could not open this video.");
     }
   };
+
+  useEffect(() => {
+    if (loadedInitialFilesRef.current) return;
+    loadedInitialFilesRef.current = true;
+    void addVideo(initialFiles[0]);
+  }, [initialFiles]);
 
   const removeVideo = () => {
     disposeVideo(videoRef.current);
@@ -275,6 +283,7 @@ export function VideoPipEditor({ onBack }: VideoPipEditorProps) {
           </div>
           <div className="export-section">
             <button className="export-button" type="button" disabled={!video || isExporting} onClick={() => void exportMov()}><ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}</button>
+            <p className="export-hint">Estimated export: {formatExportEstimate(duration, outputFormat.width, outputFormat.height, videoPipDefinition.frameRate)} · varies by device</p>
             {!video && <p className="export-hint">Add one video to export.</p>}
           </div>
         </aside>

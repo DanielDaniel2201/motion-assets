@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "instances": [
+    {
+      "id": "headline-demo",
+      "name": "Headline reveal",
+      "motion": "blur-text",
+      "format": "16:9",
+      "parameters": {
+        "text": "Batch import is ready",
+        "duration": 2.4,
+        "direction": "up",
+        "splitBy": "word",
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "counter-demo",
+      "name": "Launch counter",
+      "motion": "count-up",
+      "format": "1:1",
+      "parameters": {
+        "start": 0,
+        "end": 360,
+        "duration": 3,
+        "prefix": "",
+        "suffix": "+"
+      }
+    },
+    {
+      "id": "default-logo-demo",
+      "name": "Built-in logo loop",
+      "motion": "logo-loop",
+      "format": "16:9",
+      "parameters": {
+        "duration": 5,
+        "direction": "right",
+        "speed": 0.16
+      }
+    },
+    {
+      "id": "video-upload-demo",
+      "name": "Video awaiting upload",
+      "motion": "video-pip",
+      "format": "16:9",
+      "parameters": {
+        "dragDuration": 0.8,
+        "videoDuration": 3
+      }
+    }
+  ]
+}

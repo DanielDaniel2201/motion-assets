@@ -4,6 +4,7 @@ import { renderLogoLoopFrame } from "../assets/logo-loop/render";
 import type { SourceImage } from "../assets/types";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
 import { OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
+import { formatExportEstimate } from "../export/estimate";
 import { ChevronLeftIcon, CloseIcon, ExportIcon, ReplayIcon } from "./icons";
 import { ExportStatus } from "./ExportStatus";
 import { ParameterSlider } from "./ParameterSlider";
@@ -20,7 +21,7 @@ type LogoImage = {
   uploaded: boolean;
 };
 
-type Props = { onBack: () => void };
+type Props = { onBack: () => void; initialParameters?: Record<string, unknown>; initialFormatId?: OutputFormatId; initialFiles?: File[] };
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 const MAX_PIXELS = 20_000_000;
 
@@ -54,10 +55,10 @@ async function decodeLogo(file: Blob, name: string) {
   }
 }
 
-export function LogoLoopEditor({ onBack }: Props) {
+export function LogoLoopEditor({ onBack, initialParameters, initialFormatId, initialFiles = [] }: Props) {
   const [images, setImages] = useState<LogoImage[]>([]);
-  const [parameters, setParameters] = useState<LogoLoopParameters>(logoLoopDefinition.defaultParameters);
-  const [formatId, setFormatId] = useState<OutputFormatId>("16:9");
+  const [parameters, setParameters] = useState<LogoLoopParameters>(() => initialParameters as LogoLoopParameters ?? logoLoopDefinition.defaultParameters);
+  const [formatId, setFormatId] = useState<OutputFormatId>(initialFormatId ?? "16:9");
   const [replayToken, setReplayToken] = useState(0);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +73,17 @@ export function LogoLoopEditor({ onBack }: Props) {
 
   useEffect(() => {
     let canceled = false;
-    void Promise.all(BUILT_IN_LOGOS.map(async (logo): Promise<LogoImage> => {
+    const logos = initialFiles.length ? initialFiles.map((file) => ({ id: crypto.randomUUID(), name: file.name, path: "", file })) : BUILT_IN_LOGOS;
+    void Promise.all(logos.map(async (logo): Promise<LogoImage> => {
+      if ("file" in logo) {
+        if (logo.file.size > MAX_FILE_BYTES) throw new Error(`${logo.name} is larger than 10 MB.`);
+        const { file, bitmap } = await decodeLogo(logo.file, logo.name);
+        if (bitmap.width * bitmap.height > MAX_PIXELS) {
+          bitmap.close();
+          throw new Error(`${logo.name} exceeds the 20-megapixel safety limit.`);
+        }
+        return { id: logo.id, name: logo.name, width: bitmap.width, height: bitmap.height, file, bitmap, previewUrl: URL.createObjectURL(logo.file), uploaded: true };
+      }
       const response = await fetch(logo.path);
       if (!response.ok) throw new Error(`Could not load the built-in ${logo.name} logo.`);
       const source = await response.blob();
@@ -197,7 +208,7 @@ export function LogoLoopEditor({ onBack }: Props) {
           <ParameterSlider label="Vertical position" value={parameters.positionY} min={0.15} max={0.85} step={0.01} displayValue={`${Math.round(parameters.positionY * 100)}%`} onChange={(value) => update("positionY", value)} />
           <div className="font-control"><span className="parameter-label">Direction</span><button type="button" onClick={() => update("direction", parameters.direction === "left" ? "right" : "left")}>{parameters.direction === "left" ? "← Left" : "Right →"}</button></div>
         </div>
-        <div className="export-section"><button className="export-button" type="button" disabled={!images.length || isExporting} onClick={() => void exportMov()}><ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}</button>{!images.length && <p className="export-hint">Add at least one logo to export.</p>}</div>
+        <div className="export-section"><button className="export-button" type="button" disabled={!images.length || isExporting} onClick={() => void exportMov()}><ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}</button><p className="export-hint">Estimated export: {formatExportEstimate(duration, format.width, format.height, logoLoopDefinition.frameRate)} · varies by device</p>{!images.length && <p className="export-hint">Add at least one logo to export.</p>}</div>
       </aside>
     </div>
     {error && <div className="error-toast" role="alert"><span>{error}</span><button type="button" onClick={() => setError(null)} aria-label="Dismiss error"><CloseIcon /></button></div>}

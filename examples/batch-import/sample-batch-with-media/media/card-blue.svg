@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
+  <rect width="900" height="1200" rx="72" fill="#dbeafe"/>
+  <circle cx="450" cy="390" r="190" fill="#2563eb"/>
+  <text x="450" y="790" text-anchor="middle" font-family="Arial, sans-serif" font-size="104" font-weight="700" fill="#172554">BUILD</text>
+  <text x="450" y="875" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" fill="#1e3a8a">Turn an idea into motion</text>
+</svg>

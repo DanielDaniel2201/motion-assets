@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
+  <rect width="900" height="1200" rx="72" fill="#fef3c7"/>
+  <path d="M450 190 520 335 680 360 565 475 595 635 450 560 305 635 335 475 220 360 380 335Z" fill="#f59e0b"/>
+  <text x="450" y="790" text-anchor="middle" font-family="Arial, sans-serif" font-size="104" font-weight="700" fill="#451a03">EXPORT</text>
+  <text x="450" y="875" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" fill="#78350f">Download transparent MOV</text>
+</svg>
