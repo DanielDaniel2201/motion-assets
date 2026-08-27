@@ -14,6 +14,7 @@ import { renderProgressBarFrame } from "../assets/progress-bar/render";
 import { formatTimecode, normalizeChapters, parseTimecode } from "../assets/progress-bar/timeline";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
 import { PROGRESS_BAR_OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
+import { formatExportEstimate } from "../export/estimate";
 import { ChevronLeftIcon, CloseIcon, ExportIcon, ReplayIcon } from "./icons";
 import { ExportStatus } from "./ExportStatus";
 import { ParameterSlider } from "./ParameterSlider";
@@ -21,6 +22,8 @@ import { PreviewCanvas } from "./PreviewCanvas";
 
 type ProgressBarEditorProps = {
   onBack: () => void;
+  initialParameters?: Record<string, unknown>;
+  initialFormatId?: OutputFormatId;
 };
 
 type LocalFontData = { family: string };
@@ -59,8 +62,11 @@ function suggestedChapterTime(chapters: ProgressChapter[], duration: number) {
   return Math.min(duration, Number((last + duration / 4).toFixed(2)));
 }
 
-export function ProgressBarEditor({ onBack }: ProgressBarEditorProps) {
-  const [draft] = useState(loadDraft);
+export function ProgressBarEditor({ onBack, initialParameters, initialFormatId }: ProgressBarEditorProps) {
+  const [draft] = useState(() => initialParameters ? {
+    parameters: cloneProgressBarParameters(initialParameters as ProgressBarParameters),
+    outputFormatId: initialFormatId ?? "16:9" as OutputFormatId,
+  } : loadDraft());
   const [parameters, setParameters] = useState<ProgressBarParameters>(draft.parameters);
   const [outputFormatId, setOutputFormatId] = useState<OutputFormatId>(draft.outputFormatId);
   const [replayToken, setReplayToken] = useState(0);
@@ -76,12 +82,13 @@ export function ProgressBarEditor({ onBack }: ProgressBarEditorProps) {
   exportResultRef.current = exportResult;
 
   useEffect(() => {
+    if (initialParameters) return;
     try {
       localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({ parameters, outputFormatId }));
     } catch {
       setError("Could not save this Progress Bar draft in the browser.");
     }
-  }, [parameters, outputFormatId]);
+  }, [initialParameters, parameters, outputFormatId]);
 
   useEffect(() => () => {
     exportTaskRef.current?.cancel();
@@ -421,6 +428,7 @@ export function ProgressBarEditor({ onBack }: ProgressBarEditorProps) {
             <button className="export-button" type="button" disabled={isExporting} onClick={() => void exportMov()}>
               <ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}
             </button>
+            <p className="export-hint">Estimated export: {formatExportEstimate(duration, outputFormat.width, outputFormat.height, progressBarDefinition.frameRate)} · varies by device</p>
           </div>
         </aside>
       </div>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
+  <rect width="900" height="1200" rx="72" fill="#fee2e2"/>
+  <rect x="245" y="205" width="410" height="410" rx="96" fill="#ef4444" transform="rotate(12 450 410)"/>
+  <text x="450" y="790" text-anchor="middle" font-family="Arial, sans-serif" font-size="104" font-weight="700" fill="#450a0a">TUNE</text>
+  <text x="450" y="875" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" fill="#7f1d1d">Adjust every parameter</text>
+</svg>

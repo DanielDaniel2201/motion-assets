@@ -16,6 +16,31 @@ A browser-local tool for creating animated assets with a real alpha channel — 
 
 All assets share the same preview and export path: what you see is the MOV you get.
 
+## Batch import
+
+Drop a JSON file or a ZIP containing one JSON manifest plus referenced media anywhere on the page. The fixed **+** button opens the same importer. Imported instances appear in order in a scrollable workspace and remain fully editable.
+
+```json
+{
+  "version": 1,
+  "instances": [
+    {
+      "id": "launch-cards",
+      "motion": "card-stack",
+      "format": "16:9",
+      "parameters": { "animationSpeed": 1.2, "holdDuration": 2 },
+      "assets": ["media/card-1.png", "media/card-2.png"]
+    },
+    {
+      "motion": "logo-loop",
+      "parameters": { "direction": "right" }
+    }
+  ]
+}
+```
+
+Paths in `assets` are relative to the manifest inside the ZIP. A plain JSON file can omit media and use each instance's normal upload controls. Logo Loop uses its built-in logos when `assets` is omitted.
+
 ## Run locally
 
 ```bash

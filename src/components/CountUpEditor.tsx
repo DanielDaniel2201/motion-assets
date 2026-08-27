@@ -3,17 +3,18 @@ import { countUpDefinition, type CountUpParameters } from "../assets/count-up/de
 import { renderCountUpFrame } from "../assets/count-up/render";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
 import { OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
+import { formatExportEstimate } from "../export/estimate";
 import { ChevronLeftIcon, CloseIcon, ExportIcon, ReplayIcon } from "./icons";
 import { ExportStatus } from "./ExportStatus";
 import { ParameterSlider } from "./ParameterSlider";
 import { PreviewCanvas } from "./PreviewCanvas";
 
 const FONTS = ["Segoe UI", "Arial", "Microsoft YaHei", "PingFang SC", "SimHei"];
-type Props = { onBack: () => void };
+type Props = { onBack: () => void; initialParameters?: Record<string, unknown>; initialFormatId?: OutputFormatId };
 
-export function CountUpEditor({ onBack }: Props) {
-  const [parameters, setParameters] = useState<CountUpParameters>(countUpDefinition.defaultParameters);
-  const [formatId, setFormatId] = useState<OutputFormatId>("16:9");
+export function CountUpEditor({ onBack, initialParameters, initialFormatId }: Props) {
+  const [parameters, setParameters] = useState<CountUpParameters>(() => initialParameters as CountUpParameters ?? countUpDefinition.defaultParameters);
+  const [formatId, setFormatId] = useState<OutputFormatId>(initialFormatId ?? "16:9");
   const [replayToken, setReplayToken] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
@@ -82,7 +83,7 @@ export function CountUpEditor({ onBack }: Props) {
           <div className="font-control"><label className="parameter-label" htmlFor="count-font">Font</label><select id="count-font" value={parameters.fontFamily} onChange={(event) => update("fontFamily", event.target.value)}>{FONTS.map((font) => <option key={font}>{font}</option>)}</select></div>
           <label className="chat-color-field"><span className="parameter-label">Text color</span><input type="color" value={parameters.color} onChange={(event) => update("color", event.target.value)} /></label>
         </div>
-        <div className="export-section"><button className="export-button" type="button" disabled={isExporting} onClick={() => void exportMov()}><ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}</button></div>
+        <div className="export-section"><button className="export-button" type="button" disabled={isExporting} onClick={() => void exportMov()}><ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}</button><p className="export-hint">Estimated export: {formatExportEstimate(duration, format.width, format.height, countUpDefinition.frameRate)} · varies by device</p></div>
       </aside>
     </div>
     {error && <div className="error-toast" role="alert"><span>{error}</span><button type="button" onClick={() => setError(null)} aria-label="Dismiss error"><CloseIcon /></button></div>}

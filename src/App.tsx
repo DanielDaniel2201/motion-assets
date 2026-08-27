@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { BatchDocument } from "./batch/import";
 import { blurTextDefinition } from "./assets/blur-text/definition";
 import { cardStackDefinition } from "./assets/card-stack/definition";
 import { chatDialogDefinition } from "./assets/chat-dialog/definition";
@@ -14,11 +15,14 @@ import { GitHubIcon } from "./components/icons";
 import { LogoLoopEditor } from "./components/LogoLoopEditor";
 import { ProgressBarEditor } from "./components/ProgressBarEditor";
 import { VideoPipEditor } from "./components/VideoPipEditor";
+import { BatchImporter } from "./components/BatchImporter";
+import { BatchPage } from "./components/BatchPage";
 
 const GITHUB_REPO_URL = "https://github.com/DanielDaniel2201/motion-assets";
 
 export function App() {
   const [activeAsset, setActiveAsset] = useState(() => window.location.hash.slice(1));
+  const [batch, setBatch] = useState<BatchDocument | null>(null);
 
   useEffect(() => {
     const syncRoute = () => setActiveAsset(window.location.hash.slice(1));
@@ -36,35 +40,44 @@ export function App() {
     setActiveAsset(assetId);
   };
 
+  const wrap = (page: React.ReactNode) => <BatchImporter onImport={(imported) => {
+    setBatch(imported);
+    navigate("batch");
+  }}>{page}</BatchImporter>;
+
+  if (activeAsset === "batch" && batch) {
+    return wrap(<BatchPage batch={batch} onBack={() => navigate("")} />);
+  }
+
   if (activeAsset === cardStackDefinition.id) {
-    return <CardStackEditor onBack={() => navigate("")} />;
+    return wrap(<CardStackEditor onBack={() => navigate("")} />);
   }
 
   if (activeAsset === progressBarDefinition.id) {
-    return <ProgressBarEditor onBack={() => navigate("")} />;
+    return wrap(<ProgressBarEditor onBack={() => navigate("")} />);
   }
 
   if (activeAsset === chatDialogDefinition.id) {
-    return <ChatDialogEditor onBack={() => navigate("")} />;
+    return wrap(<ChatDialogEditor onBack={() => navigate("")} />);
   }
 
   if (activeAsset === videoPipDefinition.id) {
-    return <VideoPipEditor onBack={() => navigate("")} />;
+    return wrap(<VideoPipEditor onBack={() => navigate("")} />);
   }
 
   if (activeAsset === blurTextDefinition.id) {
-    return <BlurTextEditor onBack={() => navigate("")} />;
+    return wrap(<BlurTextEditor onBack={() => navigate("")} />);
   }
 
   if (activeAsset === countUpDefinition.id) {
-    return <CountUpEditor onBack={() => navigate("")} />;
+    return wrap(<CountUpEditor onBack={() => navigate("")} />);
   }
 
   if (activeAsset === logoLoopDefinition.id) {
-    return <LogoLoopEditor onBack={() => navigate("")} />;
+    return wrap(<LogoLoopEditor onBack={() => navigate("")} />);
   }
 
-  return (
+  return wrap(
     <main className="library-shell">
       <header className="topbar library-topbar">
         <div className="brand">

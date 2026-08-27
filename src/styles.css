@@ -421,6 +421,51 @@ h2 span { margin-left: 5px; color: #93958d; font-size: 10px; font-weight: 500; l
 .error-toast button:hover { background: rgba(134,44,39,.08); }
 .error-toast svg { width: 14px; height: 14px; }
 
+.batch-import-button {
+  position: fixed;
+  z-index: 9;
+  right: 24px;
+  bottom: 24px;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0 0 3px;
+  border: 1px solid #000;
+  border-radius: 50%;
+  background: #000;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 300;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(0,0,0,.22);
+}
+.batch-import-button:hover { transform: translateY(-2px); }
+.batch-import-button:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
+.batch-drop-overlay { position: fixed; z-index: 20; inset: 12px; display: grid; place-content: center; gap: 8px; border: 2px dashed #000; border-radius: 18px; background: rgba(255,255,255,.94); text-align: center; backdrop-filter: blur(12px); pointer-events: none; }
+.batch-drop-overlay strong { font-size: clamp(18px, 3vw, 30px); letter-spacing: -.04em; }
+.batch-drop-overlay span { color: #777; font-size: 12px; }
+
+.batch-page { height: 100vh; overflow-y: auto; scroll-snap-type: y proximity; background: #f4f4f2; }
+.batch-header { position: sticky; z-index: 8; top: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 66px; padding: 0 18px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.94); backdrop-filter: blur(18px); }
+.batch-header > div:nth-child(2) { display: flex; align-items: baseline; gap: 9px; }
+.batch-header > div:nth-child(2) strong { font-size: 14px; }
+.batch-header > div:nth-child(2) span, .batch-export-actions > span { color: #888; font-size: 10px; }
+.batch-export-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+.batch-export-all { display: flex; align-items: center; gap: 7px; padding: 9px 12px; border: 1px solid #000; border-radius: 8px; background: #000; color: #fff; font-size: 11px; font-weight: 650; cursor: pointer; }
+.batch-export-all:disabled { opacity: .45; cursor: wait; }
+.batch-export-all svg { width: 14px; height: 14px; }
+.batch-instance { min-height: calc(100vh - 66px); border-bottom: 1px solid #dcdcd8; background: #fff; scroll-margin-top: 66px; scroll-snap-align: start; }
+.batch-instance-heading { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 20px; border-bottom: 1px solid var(--line); }
+.batch-instance-heading > span { color: #aaa; font-size: 10px; font-variant-numeric: tabular-nums; }
+.batch-instance-heading strong { font-size: 12px; }
+.batch-instance-heading code { margin-left: auto; color: #999; font: 10px ui-monospace, SFMono-Regular, Consolas, monospace; }
+.batch-instance .app-shell { min-height: 0; display: block; }
+.batch-instance .app-shell > .topbar { display: none; }
+.batch-instance .workspace { min-height: calc(100vh - 112px); height: calc(100vh - 112px); }
+.batch-instance .stage { padding-top: 18px; padding-bottom: 14px; }
+.batch-instance .export-progress-card, .batch-instance .export-result-card { bottom: 28px; }
+
 @media (max-width: 1120px) {
   .workspace { grid-template-columns: 248px minmax(440px, 1fr) 248px; }
   .panel { padding-inline: 18px; }
@@ -442,6 +487,12 @@ h2 span { margin-left: 5px; color: #93958d; font-size: 10px; font-weight: 500; l
   .remove-image { opacity: 1; }
   .parameters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .export-section { margin-top: 30px; }
+  .batch-header { grid-template-columns: auto 1fr; gap: 8px; height: auto; min-height: 58px; }
+  .batch-header > div:nth-child(2) { display: none; }
+  .batch-export-actions > span { display: none; }
+  .batch-instance { min-height: 0; scroll-snap-align: none; }
+  .batch-instance .workspace { height: auto; min-height: 0; }
+  .batch-instance .stage { min-height: 52vh; }
 }
 
 @media (max-width: 540px) {

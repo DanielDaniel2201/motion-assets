@@ -11,12 +11,13 @@ import { renderChatDialogFrame, type ChatAvatarSources } from "../assets/chat-di
 import type { SourceImage } from "../assets/types";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
 import { OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
+import { formatExportEstimate } from "../export/estimate";
 import { ChevronLeftIcon, CloseIcon, ExportIcon, ReplayIcon } from "./icons";
 import { ExportStatus } from "./ExportStatus";
 import { ParameterSlider } from "./ParameterSlider";
 import { PreviewCanvas } from "./PreviewCanvas";
 
-type ChatDialogEditorProps = { onBack: () => void };
+type ChatDialogEditorProps = { onBack: () => void; initialParameters?: Record<string, unknown>; initialFormatId?: OutputFormatId; initialFiles?: File[] };
 
 type UploadedAvatar = {
   file: File;
@@ -44,12 +45,12 @@ function closeAvatar(avatar?: UploadedAvatar) {
   if (avatar) URL.revokeObjectURL(avatar.previewUrl);
 }
 
-export function ChatDialogEditor({ onBack }: ChatDialogEditorProps) {
+export function ChatDialogEditor({ onBack, initialParameters, initialFormatId, initialFiles = [] }: ChatDialogEditorProps) {
   const [parameters, setParameters] = useState<ChatDialogParameters>(() =>
-    cloneChatDialogParameters(chatDialogDefinition.defaultParameters),
+    cloneChatDialogParameters(initialParameters as ChatDialogParameters ?? chatDialogDefinition.defaultParameters),
   );
   const [avatars, setAvatars] = useState<Partial<Record<ChatSide, UploadedAvatar>>>({});
-  const [outputFormatId, setOutputFormatId] = useState<OutputFormatId>("16:9");
+  const [outputFormatId, setOutputFormatId] = useState<OutputFormatId>(initialFormatId ?? "16:9");
   const [replayToken, setReplayToken] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
@@ -58,6 +59,7 @@ export function ChatDialogEditor({ onBack }: ChatDialogEditorProps) {
   const exportTaskRef = useRef<ExportTask | null>(null);
   const exportResultRef = useRef(exportResult);
   const avatarsRef = useRef(avatars);
+  const loadedInitialFilesRef = useRef(false);
   exportResultRef.current = exportResult;
   avatarsRef.current = avatars;
 
@@ -132,6 +134,13 @@ export function ChatDialogEditor({ onBack }: ChatDialogEditorProps) {
       setError(uploadError instanceof Error ? uploadError.message : "Chrome could not decode that avatar.");
     }
   };
+
+  useEffect(() => {
+    if (loadedInitialFilesRef.current) return;
+    loadedInitialFilesRef.current = true;
+    if (initialFiles[0]) void uploadAvatar("left", initialFiles[0]);
+    if (initialFiles[1]) void uploadAvatar("right", initialFiles[1]);
+  }, [initialFiles]);
 
   const removeAvatar = (side: ChatSide) => {
     setAvatars((current) => {
@@ -260,6 +269,7 @@ export function ChatDialogEditor({ onBack }: ChatDialogEditorProps) {
           </div>
           <div className="export-section">
             <button className="export-button" type="button" disabled={!parameters.messages.length || isExporting} onClick={() => void exportMov()}><ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}</button>
+            <p className="export-hint">Estimated export: {formatExportEstimate(duration, outputFormat.width, outputFormat.height, chatDialogDefinition.frameRate)} · varies by device</p>
             {!parameters.messages.length && <p className="export-hint">Add at least one message to export.</p>}
           </div>
         </aside>
