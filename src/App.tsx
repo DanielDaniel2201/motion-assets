@@ -84,15 +84,18 @@ export function App() {
           <span className="brand-mark"><i /><i /><i /></span>
           <span>Motions</span>
         </div>
-        <a
-          className="github-link"
-          href={GITHUB_REPO_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Open the Motion Assets GitHub repository"
-        >
-          <GitHubIcon />
-        </a>
+        <nav className="header-links" aria-label="Resources">
+          <a className="agent-link" href="/SKILL.md">Are you an agent?</a>
+          <a
+            className="github-link"
+            href={GITHUB_REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open the Motion Assets GitHub repository"
+          >
+            <GitHubIcon />
+          </a>
+        </nav>
       </header>
       <section className="motion-library" aria-label="Motion library">
         <button className="motion-item" type="button" onClick={() => navigate(cardStackDefinition.id)}>
