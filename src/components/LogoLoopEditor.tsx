@@ -4,8 +4,8 @@ import { renderLogoLoopFrame } from "../assets/logo-loop/render";
 import type { SourceImage } from "../assets/types";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
 import { OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
-import { formatExportEstimate } from "../export/estimate";
-import { ChevronLeftIcon, CloseIcon, ExportIcon, ReplayIcon } from "./icons";
+import { ChevronLeftIcon, CloseIcon, ReplayIcon } from "./icons";
+import { ExportControls } from "./ExportControls";
 import { ExportStatus } from "./ExportStatus";
 import { ParameterSlider } from "./ParameterSlider";
 import { PreviewCanvas } from "./PreviewCanvas";
@@ -159,14 +159,14 @@ export function LogoLoopEditor({ onBack, initialParameters, initialFormatId, ini
     setReplayToken((token) => token + 1);
   };
 
-  const exportMov = async () => {
+  const exportMov = async (width: number, height: number) => {
     if (!images.length || isExporting) return;
     setError(null);
     if (exportResult) URL.revokeObjectURL(exportResult.url);
     setExportResult(null);
     setIsExporting(true);
     const task = startExport({
-      id: crypto.randomUUID(), type: "export", motion: "logo-loop", width: format.width, height: format.height, frameRate: logoLoopDefinition.frameRate, parameters,
+      id: crypto.randomUUID(), type: "export", motion: "logo-loop", width, height, frameRate: logoLoopDefinition.frameRate, parameters,
       images: images.map(({ id, name, width, height, file }) => ({ id, name, width, height, file })),
     }, setExportProgress);
     taskRef.current = task;
@@ -208,7 +208,7 @@ export function LogoLoopEditor({ onBack, initialParameters, initialFormatId, ini
           <ParameterSlider label="Vertical position" value={parameters.positionY} min={0.15} max={0.85} step={0.01} displayValue={`${Math.round(parameters.positionY * 100)}%`} onChange={(value) => update("positionY", value)} />
           <div className="font-control"><span className="parameter-label">Direction</span><button type="button" onClick={() => update("direction", parameters.direction === "left" ? "right" : "left")}>{parameters.direction === "left" ? "← Left" : "Right →"}</button></div>
         </div>
-        <div className="export-section"><button className="export-button" type="button" disabled={!images.length || isExporting} onClick={() => void exportMov()}><ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}</button><p className="export-hint">Estimated export: {formatExportEstimate(duration, format.width, format.height, logoLoopDefinition.frameRate)} · varies by device</p>{!images.length && <p className="export-hint">Add at least one logo to export.</p>}</div>
+        <ExportControls width={format.width} height={format.height} duration={duration} frameRate={logoLoopDefinition.frameRate} disabled={!images.length} isExporting={isExporting} onExport={(width, height) => void exportMov(width, height)}>{!images.length && <p className="export-hint">Add at least one logo to export.</p>}</ExportControls>
       </aside>
     </div>
     {error && <div className="error-toast" role="alert"><span>{error}</span><button type="button" onClick={() => setError(null)} aria-label="Dismiss error"><CloseIcon /></button></div>}

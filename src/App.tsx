@@ -40,7 +40,7 @@ export function App() {
     setActiveAsset(assetId);
   };
 
-  const wrap = (page: React.ReactNode) => <BatchImporter onImport={(imported) => {
+  const wrap = (page: React.ReactNode, showImportButton = false) => <BatchImporter showButton={showImportButton} onImport={(imported) => {
     setBatch(imported);
     navigate("batch");
   }}>{page}</BatchImporter>;
@@ -143,6 +143,7 @@ export function App() {
           <span className="motion-item-copy"><strong>Logo Loop</strong></span>
         </button>
       </section>
-    </main>
+    </main>,
+    true,
   );
 }

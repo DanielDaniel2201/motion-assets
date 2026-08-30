@@ -3,13 +3,13 @@ import type { CardStackParameters } from "../assets/card-stack/definition";
 import { cardStackDefinition } from "../assets/card-stack/definition";
 import { renderCardStackFrame } from "../assets/card-stack/render";
 import type { SourceImage } from "../assets/types";
-import { ChevronLeftIcon, CloseIcon, ExportIcon, ReplayIcon } from "./icons";
+import { ChevronLeftIcon, CloseIcon, ReplayIcon } from "./icons";
+import { ExportControls } from "./ExportControls";
 import { ParameterSlider } from "./ParameterSlider";
 import { PreviewCanvas } from "./PreviewCanvas";
 import { ExportStatus } from "./ExportStatus";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
 import { OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
-import { formatExportEstimate } from "../export/estimate";
 
 type UploadedImage = {
   id: string;
@@ -223,7 +223,7 @@ export function CardStackEditor({ onBack, initialParameters, initialFormatId, in
     setReplayToken((token) => token + 1);
   };
 
-  const exportMov = async () => {
+  const exportMov = async (width: number, height: number) => {
     if (!completed || isExporting) return;
     setError(null);
     if (exportResult) {
@@ -237,8 +237,8 @@ export function CardStackEditor({ onBack, initialParameters, initialFormatId, in
         id: crypto.randomUUID(),
         type: "export",
         motion: "card-stack",
-        width: outputFormat.width,
-        height: outputFormat.height,
+        width,
+        height,
         frameRate: cardStackDefinition.frameRate,
         parameters,
         images: images.map(({ id, name, width, height, file }) => ({ id, name, width, height, file })),
@@ -386,13 +386,9 @@ export function CardStackEditor({ onBack, initialParameters, initialFormatId, in
             <ParameterSlider label="Stagger" value={parameters.stagger} min={0.06} max={0.24} step={0.01} displayValue={`${parameters.stagger.toFixed(2)}s`} onChange={(value) => updateParameter("stagger", value)} />
             <ParameterSlider label="Hold duration" value={parameters.holdDuration} min={0.5} max={3} step={0.1} displayValue={`${parameters.holdDuration.toFixed(1)}s`} onChange={(value) => updateParameter("holdDuration", value)} />
           </div>
-          <div className="export-section">
-            <button className="export-button" type="button" disabled={!completed || isExporting} onClick={() => void exportMov()}>
-              <ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}
-            </button>
-            <p className="export-hint">Estimated export: {formatExportEstimate(duration, outputFormat.width, outputFormat.height, cardStackDefinition.frameRate)} · varies by device</p>
+          <ExportControls width={outputFormat.width} height={outputFormat.height} duration={duration} frameRate={cardStackDefinition.frameRate} disabled={!completed} isExporting={isExporting} onExport={(width, height) => void exportMov(width, height)}>
             {!completed && <p className="export-hint">Add at least two images to export.</p>}
-          </div>
+          </ExportControls>
         </aside>
       </div>
 

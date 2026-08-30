@@ -2,9 +2,9 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { importBatchFile, type BatchDocument } from "../batch/import";
 import { CloseIcon } from "./icons";
 
-type Props = { children: ReactNode; onImport: (batch: BatchDocument) => void };
+type Props = { children: ReactNode; onImport: (batch: BatchDocument) => void; showButton?: boolean };
 
-export function BatchImporter({ children, onImport }: Props) {
+export function BatchImporter({ children, onImport, showButton = false }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +66,7 @@ export function BatchImporter({ children, onImport }: Props) {
       void open(event.target.files?.[0]);
       event.target.value = "";
     }} />
-    <button className="batch-import-button" type="button" onClick={() => inputRef.current?.click()} aria-label="Import motion batch" title="Import JSON or ZIP">+</button>
+    {showButton && <button className="batch-import-button" type="button" onClick={() => inputRef.current?.click()} aria-label="Import motion batch" title="Import JSON or ZIP">+</button>}
     {dragging && <div className="batch-drop-overlay" role="status"><strong>Drop JSON or ZIP to create motion instances</strong><span>Media paths inside ZIP are resolved from the manifest.</span></div>}
     {error && <div className="error-toast" role="alert"><span>{error}</span><button type="button" onClick={() => setError(null)} aria-label="Dismiss error"><CloseIcon /></button></div>}
   </>;

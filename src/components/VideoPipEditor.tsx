@@ -7,8 +7,8 @@ import {
 import { renderVideoPipFrame } from "../assets/video-pip/render";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
 import { OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
-import { formatExportEstimate } from "../export/estimate";
-import { ChevronLeftIcon, CloseIcon, ExportIcon, ReplayIcon } from "./icons";
+import { ChevronLeftIcon, CloseIcon, ReplayIcon } from "./icons";
+import { ExportControls } from "./ExportControls";
 import { ExportStatus } from "./ExportStatus";
 import { ParameterSlider } from "./ParameterSlider";
 import { PreviewCanvas } from "./PreviewCanvas";
@@ -160,7 +160,7 @@ export function VideoPipEditor({ onBack, initialParameters, initialFormatId, ini
     setReplayToken((token) => token + 1);
   };
 
-  const exportMov = async () => {
+  const exportMov = async (width: number, height: number) => {
     if (!video || isExporting) return;
     setError(null);
     if (exportResult) {
@@ -177,8 +177,8 @@ export function VideoPipEditor({ onBack, initialParameters, initialFormatId, ini
           id: crypto.randomUUID(),
           type: "export",
           motion: "video-pip",
-          width: outputFormat.width,
-          height: outputFormat.height,
+          width,
+          height,
           frameRate: videoPipDefinition.frameRate,
           parameters,
           video: { width: video.width, height: video.height },
@@ -281,11 +281,9 @@ export function VideoPipEditor({ onBack, initialParameters, initialFormatId, ini
           <div className="parameters">
             <ParameterSlider label="Drag speed" value={parameters.dragDuration} min={0.35} max={2} step={0.05} displayValue={`${parameters.dragDuration.toFixed(2)}s`} onChange={updateDragDuration} />
           </div>
-          <div className="export-section">
-            <button className="export-button" type="button" disabled={!video || isExporting} onClick={() => void exportMov()}><ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}</button>
-            <p className="export-hint">Estimated export: {formatExportEstimate(duration, outputFormat.width, outputFormat.height, videoPipDefinition.frameRate)} · varies by device</p>
+          <ExportControls width={outputFormat.width} height={outputFormat.height} duration={duration} frameRate={videoPipDefinition.frameRate} disabled={!video} isExporting={isExporting} onExport={(width, height) => void exportMov(width, height)}>
             {!video && <p className="export-hint">Add one video to export.</p>}
-          </div>
+          </ExportControls>
         </aside>
       </div>
 
