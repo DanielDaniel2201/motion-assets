@@ -3,8 +3,8 @@ import { countUpDefinition, type CountUpParameters } from "../assets/count-up/de
 import { renderCountUpFrame } from "../assets/count-up/render";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
 import { OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
-import { formatExportEstimate } from "../export/estimate";
-import { ChevronLeftIcon, CloseIcon, ExportIcon, ReplayIcon } from "./icons";
+import { ChevronLeftIcon, CloseIcon, ReplayIcon } from "./icons";
+import { ExportControls } from "./ExportControls";
 import { ExportStatus } from "./ExportStatus";
 import { ParameterSlider } from "./ParameterSlider";
 import { PreviewCanvas } from "./PreviewCanvas";
@@ -36,13 +36,13 @@ export function CountUpEditor({ onBack, initialParameters, initialFormatId }: Pr
     setReplayToken((token) => token + 1);
   };
 
-  const exportMov = async () => {
+  const exportMov = async (width: number, height: number) => {
     if (isExporting) return;
     setError(null);
     if (exportResult) URL.revokeObjectURL(exportResult.url);
     setExportResult(null);
     setIsExporting(true);
-    const task = startExport({ id: crypto.randomUUID(), type: "export", motion: "count-up", width: format.width, height: format.height, frameRate: countUpDefinition.frameRate, parameters }, setExportProgress);
+    const task = startExport({ id: crypto.randomUUID(), type: "export", motion: "count-up", width, height, frameRate: countUpDefinition.frameRate, parameters }, setExportProgress);
     taskRef.current = task;
     try {
       const blob = await task.promise;
@@ -83,7 +83,7 @@ export function CountUpEditor({ onBack, initialParameters, initialFormatId }: Pr
           <div className="font-control"><label className="parameter-label" htmlFor="count-font">Font</label><select id="count-font" value={parameters.fontFamily} onChange={(event) => update("fontFamily", event.target.value)}>{FONTS.map((font) => <option key={font}>{font}</option>)}</select></div>
           <label className="chat-color-field"><span className="parameter-label">Text color</span><input type="color" value={parameters.color} onChange={(event) => update("color", event.target.value)} /></label>
         </div>
-        <div className="export-section"><button className="export-button" type="button" disabled={isExporting} onClick={() => void exportMov()}><ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}</button><p className="export-hint">Estimated export: {formatExportEstimate(duration, format.width, format.height, countUpDefinition.frameRate)} · varies by device</p></div>
+        <ExportControls width={format.width} height={format.height} duration={duration} frameRate={countUpDefinition.frameRate} isExporting={isExporting} onExport={(width, height) => void exportMov(width, height)} />
       </aside>
     </div>
     {error && <div className="error-toast" role="alert"><span>{error}</span><button type="button" onClick={() => setError(null)} aria-label="Dismiss error"><CloseIcon /></button></div>}

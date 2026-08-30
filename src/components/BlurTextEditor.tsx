@@ -3,8 +3,8 @@ import { blurTextDefinition, type BlurTextParameters } from "../assets/blur-text
 import { renderBlurTextFrame } from "../assets/blur-text/render";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
 import { OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
-import { formatExportEstimate } from "../export/estimate";
-import { ChevronLeftIcon, CloseIcon, ExportIcon, ReplayIcon } from "./icons";
+import { ChevronLeftIcon, CloseIcon, ReplayIcon } from "./icons";
+import { ExportControls } from "./ExportControls";
 import { ExportStatus } from "./ExportStatus";
 import { ParameterSlider } from "./ParameterSlider";
 import { PreviewCanvas } from "./PreviewCanvas";
@@ -37,13 +37,13 @@ export function BlurTextEditor({ onBack, initialParameters, initialFormatId }: P
     setReplayToken((token) => token + 1);
   };
 
-  const exportMov = async () => {
+  const exportMov = async (width: number, height: number) => {
     if (!parameters.text.trim() || isExporting) return;
     setError(null);
     if (exportResult) URL.revokeObjectURL(exportResult.url);
     setExportResult(null);
     setIsExporting(true);
-    const task = startExport({ id: crypto.randomUUID(), type: "export", motion: "blur-text", width: format.width, height: format.height, frameRate: blurTextDefinition.frameRate, parameters }, setExportProgress);
+    const task = startExport({ id: crypto.randomUUID(), type: "export", motion: "blur-text", width, height, frameRate: blurTextDefinition.frameRate, parameters }, setExportProgress);
     taskRef.current = task;
     try {
       const blob = await task.promise;
@@ -82,7 +82,7 @@ export function BlurTextEditor({ onBack, initialParameters, initialFormatId }: P
           <div className="font-control"><label className="parameter-label" htmlFor="blur-font">Font</label><select id="blur-font" value={parameters.fontFamily} onChange={(event) => update("fontFamily", event.target.value)}>{FONTS.map((font) => <option key={font}>{font}</option>)}</select></div>
           <label className="chat-color-field"><span className="parameter-label">Text color</span><input type="color" value={parameters.color} onChange={(event) => update("color", event.target.value)} /></label>
         </div>
-        <div className="export-section"><button className="export-button" type="button" disabled={!parameters.text.trim() || isExporting} onClick={() => void exportMov()}><ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}</button><p className="export-hint">Estimated export: {formatExportEstimate(duration, format.width, format.height, blurTextDefinition.frameRate)} · varies by device</p></div>
+        <ExportControls width={format.width} height={format.height} duration={duration} frameRate={blurTextDefinition.frameRate} disabled={!parameters.text.trim()} isExporting={isExporting} onExport={(width, height) => void exportMov(width, height)} />
       </aside>
     </div>
     {error && <div className="error-toast" role="alert"><span>{error}</span><button type="button" onClick={() => setError(null)} aria-label="Dismiss error"><CloseIcon /></button></div>}

@@ -14,8 +14,8 @@ import { renderProgressBarFrame } from "../assets/progress-bar/render";
 import { formatTimecode, normalizeChapters, parseTimecode } from "../assets/progress-bar/timeline";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
 import { PROGRESS_BAR_OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
-import { formatExportEstimate } from "../export/estimate";
-import { ChevronLeftIcon, CloseIcon, ExportIcon, ReplayIcon } from "./icons";
+import { ChevronLeftIcon, CloseIcon, ReplayIcon } from "./icons";
+import { ExportControls } from "./ExportControls";
 import { ExportStatus } from "./ExportStatus";
 import { ParameterSlider } from "./ParameterSlider";
 import { PreviewCanvas } from "./PreviewCanvas";
@@ -182,7 +182,7 @@ export function ProgressBarEditor({ onBack, initialParameters, initialFormatId }
     }
   };
 
-  const exportMov = async () => {
+  const exportMov = async (width: number, height: number) => {
     if (isExporting) return;
     setError(null);
     if (exportResult) {
@@ -196,8 +196,8 @@ export function ProgressBarEditor({ onBack, initialParameters, initialFormatId }
         id: crypto.randomUUID(),
         type: "export",
         motion: "progress-bar",
-        width: outputFormat.width,
-        height: outputFormat.height,
+        width,
+        height,
         frameRate: progressBarDefinition.frameRate,
         parameters: {
           ...parameters,
@@ -424,12 +424,7 @@ export function ProgressBarEditor({ onBack, initialParameters, initialFormatId }
               </div>
             </div>
           </div>
-          <div className="export-section">
-            <button className="export-button" type="button" disabled={isExporting} onClick={() => void exportMov()}>
-              <ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}
-            </button>
-            <p className="export-hint">Estimated export: {formatExportEstimate(duration, outputFormat.width, outputFormat.height, progressBarDefinition.frameRate)} · varies by device</p>
-          </div>
+          <ExportControls width={outputFormat.width} height={outputFormat.height} duration={duration} frameRate={progressBarDefinition.frameRate} isExporting={isExporting} onExport={(width, height) => void exportMov(width, height)} />
         </aside>
       </div>
 

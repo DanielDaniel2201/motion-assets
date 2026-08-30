@@ -25,6 +25,9 @@ export const ExportIcon = (props: IconProps) => (
 export const ChevronLeftIcon = (props: IconProps) => (
   <svg {...base} {...props}><path d="m15 18-6-6 6-6"/></svg>
 );
+export const ChevronUpIcon = (props: IconProps) => (
+  <svg {...base} {...props}><path d="m6 15 6-6 6 6"/></svg>
+);
 export const CloseIcon = (props: IconProps) => (
   <svg {...base} {...props}><path d="m6 6 12 12M18 6 6 18"/></svg>
 );

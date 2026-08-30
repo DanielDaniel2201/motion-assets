@@ -11,8 +11,8 @@ import { renderChatDialogFrame, type ChatAvatarSources } from "../assets/chat-di
 import type { SourceImage } from "../assets/types";
 import { createMovDownload, startExport, triggerMovDownload, type ExportProgress, type ExportTask } from "../export/client";
 import { OUTPUT_FORMATS, type OutputFormatId } from "../export/formats";
-import { formatExportEstimate } from "../export/estimate";
-import { ChevronLeftIcon, CloseIcon, ExportIcon, ReplayIcon } from "./icons";
+import { ChevronLeftIcon, CloseIcon, ReplayIcon } from "./icons";
+import { ExportControls } from "./ExportControls";
 import { ExportStatus } from "./ExportStatus";
 import { ParameterSlider } from "./ParameterSlider";
 import { PreviewCanvas } from "./PreviewCanvas";
@@ -152,7 +152,7 @@ export function ChatDialogEditor({ onBack, initialParameters, initialFormatId, i
     setReplayToken((token) => token + 1);
   };
 
-  const exportMov = async () => {
+  const exportMov = async (width: number, height: number) => {
     if (!parameters.messages.length || isExporting) return;
     setError(null);
     if (exportResult) {
@@ -165,8 +165,8 @@ export function ChatDialogEditor({ onBack, initialParameters, initialFormatId, i
       id: crypto.randomUUID(),
       type: "export",
       motion: "chat-dialog",
-      width: outputFormat.width,
-      height: outputFormat.height,
+      width,
+      height,
       frameRate: chatDialogDefinition.frameRate,
       parameters,
       avatars: {
@@ -267,11 +267,9 @@ export function ChatDialogEditor({ onBack, initialParameters, initialFormatId, i
               </label>
             ))}
           </div>
-          <div className="export-section">
-            <button className="export-button" type="button" disabled={!parameters.messages.length || isExporting} onClick={() => void exportMov()}><ExportIcon />{isExporting ? "Exporting…" : "Export MOV"}</button>
-            <p className="export-hint">Estimated export: {formatExportEstimate(duration, outputFormat.width, outputFormat.height, chatDialogDefinition.frameRate)} · varies by device</p>
+          <ExportControls width={outputFormat.width} height={outputFormat.height} duration={duration} frameRate={chatDialogDefinition.frameRate} disabled={!parameters.messages.length} isExporting={isExporting} onExport={(width, height) => void exportMov(width, height)}>
             {!parameters.messages.length && <p className="export-hint">Add at least one message to export.</p>}
-          </div>
+          </ExportControls>
         </aside>
       </div>
 
