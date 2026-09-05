@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { CardStackParameters } from "../assets/card-stack/definition";
 import { cardStackDefinition } from "../assets/card-stack/definition";
 import { renderCardStackFrame } from "../assets/card-stack/render";
+import { imageLineupDefinition } from "../assets/image-lineup/definition";
+import { renderImageLineupFrame } from "../assets/image-lineup/render";
 import type { SourceImage } from "../assets/types";
 import { ChevronLeftIcon, CloseIcon, ReplayIcon } from "./icons";
 import { ExportControls } from "./ExportControls";
@@ -66,11 +68,14 @@ type CardStackEditorProps = {
   initialParameters?: Record<string, unknown>;
   initialFormatId?: OutputFormatId;
   initialFiles?: File[];
+  motion?: "card-stack" | "image-lineup";
 };
 
-export function CardStackEditor({ onBack, initialParameters, initialFormatId, initialFiles = [] }: CardStackEditorProps) {
+export function CardStackEditor({ onBack, initialParameters, initialFormatId, initialFiles = [], motion = "card-stack" }: CardStackEditorProps) {
+  const definition = motion === "image-lineup" ? imageLineupDefinition : cardStackDefinition;
+  const isLineup = motion === "image-lineup";
   const [images, setImages] = useState<UploadedImage[]>([]);
-  const [parameters, setParameters] = useState<CardStackParameters>(() => initialParameters as CardStackParameters ?? cardStackDefinition.defaultParameters);
+  const [parameters, setParameters] = useState<CardStackParameters>(() => initialParameters as CardStackParameters ?? definition.defaultParameters);
   const [outputFormatId, setOutputFormatId] = useState<OutputFormatId>(initialFormatId ?? "16:9");
   const [replayToken, setReplayToken] = useState(0);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -136,10 +141,10 @@ export function CardStackEditor({ onBack, initialParameters, initialFormatId, in
 
   const sources = useMemo(() => imageSources(images), [images]);
   const outputFormat = OUTPUT_FORMATS.find((format) => format.id === outputFormatId)!;
-  const completed = sources.length >= cardStackDefinition.minInputCount;
-  const duration = cardStackDefinition.getDuration(
+  const completed = sources.length >= definition.minInputCount;
+  const duration = definition.getDuration(
     parameters,
-    Math.max(sources.length, cardStackDefinition.minInputCount),
+    Math.max(sources.length, definition.minInputCount),
   );
 
   const updateParameter = <Key extends keyof CardStackParameters>(
@@ -154,9 +159,9 @@ export function CardStackEditor({ onBack, initialParameters, initialFormatId, in
     if (!fileList?.length) return;
     setError(null);
     const files = Array.from(fileList);
-    const remaining = cardStackDefinition.maxInputCount - images.length;
+    const remaining = definition.maxInputCount - images.length;
     if (files.length > remaining) {
-      setError(`You can add ${remaining} more image${remaining === 1 ? "" : "s"}; Card Stack supports up to 8.`);
+      setError(`You can add ${remaining} more image${remaining === 1 ? "" : "s"}; ${definition.name} supports up to 8.`);
       return;
     }
     const added: UploadedImage[] = [];
@@ -231,15 +236,15 @@ export function CardStackEditor({ onBack, initialParameters, initialFormatId, in
       setExportResult(null);
     }
     setIsExporting(true);
-    setExportProgress({ progress: 0, frame: 0, totalFrames: Math.ceil(duration * cardStackDefinition.frameRate) });
+    setExportProgress({ progress: 0, frame: 0, totalFrames: Math.ceil(duration * definition.frameRate) });
     const task = startExport(
       {
         id: crypto.randomUUID(),
         type: "export",
-        motion: "card-stack",
+        motion,
         width,
         height,
-        frameRate: cardStackDefinition.frameRate,
+        frameRate: definition.frameRate,
         parameters,
         images: images.map(({ id, name, width, height, file }) => ({ id, name, width, height, file })),
       },
@@ -248,7 +253,7 @@ export function CardStackEditor({ onBack, initialParameters, initialFormatId, in
     exportTaskRef.current = task;
     try {
       const blob = await task.promise;
-      const download = createMovDownload(blob, cardStackDefinition.id);
+      const download = createMovDownload(blob, definition.id);
       setExportResult({ ...download, size: blob.size });
       triggerMovDownload(download.url, download.filename);
     } catch (exportError) {
@@ -269,14 +274,14 @@ export function CardStackEditor({ onBack, initialParameters, initialFormatId, in
           <ChevronLeftIcon /> Back to motions
         </button>
         <div className="asset-title">
-          <strong>Card Stack</strong>
+          <strong>{definition.name}</strong>
         </div>
       </header>
 
       <div className="workspace">
         <aside className="panel assets-panel">
           <div className="panel-heading">
-            <h2>Your cards <span>2–8 images</span></h2>
+            <h2>Your images <span>2–8 images</span></h2>
           </div>
           <div className="image-grid">
             {images.map((image, index) => (
@@ -306,10 +311,10 @@ export function CardStackEditor({ onBack, initialParameters, initialFormatId, in
                 }}
               >
                 <img src={image.thumbnailUrl} alt={`Card ${index + 1}: ${image.name}`} draggable={false} />
-                <button type="button" className="remove-image" onClick={() => removeSlot(index)} aria-label={`Remove card ${index + 1}`}><CloseIcon /></button>
+                <button type="button" className="remove-image" onClick={() => removeSlot(index)} aria-label={`Remove image ${index + 1}`}><CloseIcon /></button>
               </div>
             ))}
-            {images.length < cardStackDefinition.maxInputCount && (
+            {images.length < definition.maxInputCount && (
               <label className="add-tile" title="Add images">
                 <input type="file" accept="image/*" multiple onChange={(event) => {
                   void addFiles(event.target.files);
@@ -335,12 +340,13 @@ export function CardStackEditor({ onBack, initialParameters, initialFormatId, in
             height={outputFormat.height}
             duration={duration}
             replayToken={replayToken}
-            label="Card Stack animation preview"
+            label={`${definition.name} animation preview`}
             draw={(context, width, height, time) => {
-              renderCardStackFrame(context, width, height, sources, parameters, time);
+              if (isLineup) renderImageLineupFrame(context, width, height, sources, parameters, time);
+              else renderCardStackFrame(context, width, height, sources, parameters, time);
             }}
             empty={images.length === 0 ? (
-              <div className="preview-empty" aria-hidden="true">
+              <div className={`preview-empty${isLineup ? " lineup-empty" : ""}`} aria-hidden="true">
                 <div className="ghost-card ghost-one" />
                 <div className="ghost-card ghost-two" />
                 <div className="ghost-card ghost-three" />
@@ -381,12 +387,12 @@ export function CardStackEditor({ onBack, initialParameters, initialFormatId, in
           </div>
           <div className="parameters">
             <ParameterSlider label="Animation speed" value={parameters.animationSpeed} min={0.6} max={1.6} step={0.05} displayValue={`${parameters.animationSpeed.toFixed(2)}×`} onChange={(value) => updateParameter("animationSpeed", value)} />
-            <ParameterSlider label="Spread" value={parameters.spread} min={0.65} max={1.3} step={0.05} displayValue={`${Math.round(parameters.spread * 100)}%`} onChange={(value) => updateParameter("spread", value)} />
-            <ParameterSlider label="Rotation" value={parameters.rotation} min={0} max={1.5} step={0.05} displayValue={`${Math.round(parameters.rotation * 100)}%`} onChange={(value) => updateParameter("rotation", value)} />
+            <ParameterSlider label={isLineup ? "Spacing" : "Spread"} value={parameters.spread} min={0.65} max={1.3} step={0.05} displayValue={`${Math.round(parameters.spread * 100)}%`} onChange={(value) => updateParameter("spread", value)} />
+            {!isLineup && <ParameterSlider label="Rotation" value={parameters.rotation} min={0} max={1.5} step={0.05} displayValue={`${Math.round(parameters.rotation * 100)}%`} onChange={(value) => updateParameter("rotation", value)} />}
             <ParameterSlider label="Stagger" value={parameters.stagger} min={0.06} max={0.24} step={0.01} displayValue={`${parameters.stagger.toFixed(2)}s`} onChange={(value) => updateParameter("stagger", value)} />
             <ParameterSlider label="Hold duration" value={parameters.holdDuration} min={0.5} max={3} step={0.1} displayValue={`${parameters.holdDuration.toFixed(1)}s`} onChange={(value) => updateParameter("holdDuration", value)} />
           </div>
-          <ExportControls width={outputFormat.width} height={outputFormat.height} duration={duration} frameRate={cardStackDefinition.frameRate} disabled={!completed} isExporting={isExporting} onExport={(width, height) => void exportMov(width, height)}>
+          <ExportControls width={outputFormat.width} height={outputFormat.height} duration={duration} frameRate={definition.frameRate} disabled={!completed} isExporting={isExporting} onExport={(width, height) => void exportMov(width, height)}>
             {!completed && <p className="export-hint">Add at least two images to export.</p>}
           </ExportControls>
         </aside>

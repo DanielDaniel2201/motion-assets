@@ -8,6 +8,8 @@ import { chatDialogDefinition } from "../assets/chat-dialog/definition";
 import { renderChatDialogFrame, type ChatAvatarSources } from "../assets/chat-dialog/render";
 import { countUpDefinition } from "../assets/count-up/definition";
 import { renderCountUpFrame } from "../assets/count-up/render";
+import { imageLineupDefinition } from "../assets/image-lineup/definition";
+import { renderImageLineupFrame } from "../assets/image-lineup/render";
 import { logoLoopDefinition } from "../assets/logo-loop/definition";
 import { renderLogoLoopFrame } from "../assets/logo-loop/render";
 import { progressBarDefinition } from "../assets/progress-bar/definition";
@@ -131,6 +133,20 @@ async function runExport(request: ExportRequest) {
     } else if (isCountUpRequest(request)) {
       duration = countUpDefinition.getDuration(request.parameters, 0);
       draw = (time) => renderCountUpFrame(context, request.width, request.height, request.parameters, time);
+    } else if (request.motion === "image-lineup") {
+      if (request.images.length < imageLineupDefinition.minInputCount || request.images.length > imageLineupDefinition.maxInputCount) {
+        throw new Error("Image Lineup requires 2–8 images.");
+      }
+      for (const image of request.images) bitmaps.push(await createImageBitmap(image.file));
+      const sources: SourceImage[] = request.images.map((image, index) => ({
+        id: image.id,
+        name: image.name,
+        width: image.width,
+        height: image.height,
+        source: bitmaps[index],
+      }));
+      duration = imageLineupDefinition.getDuration(request.parameters, request.images.length);
+      draw = (time) => renderImageLineupFrame(context, request.width, request.height, sources, request.parameters, time);
     } else if (isLogoLoopRequest(request)) {
       if (!request.images.length || request.images.length > logoLoopDefinition.maxInputCount) {
         throw new Error("Logo Loop requires 1–12 images.");
