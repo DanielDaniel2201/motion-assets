@@ -6,6 +6,7 @@ import { chatDialogDefinition } from "./assets/chat-dialog/definition";
 import { countUpDefinition } from "./assets/count-up/definition";
 import { imageLineupDefinition } from "./assets/image-lineup/definition";
 import { logoLoopDefinition } from "./assets/logo-loop/definition";
+import { mermaidFlowDefinition } from "./assets/mermaid-flow/definition";
 import { progressBarDefinition } from "./assets/progress-bar/definition";
 import { videoPipDefinition } from "./assets/video-pip/definition";
 import { BlurTextEditor } from "./components/BlurTextEditor";
@@ -14,6 +15,7 @@ import { ChatDialogEditor } from "./components/ChatDialogEditor";
 import { CountUpEditor } from "./components/CountUpEditor";
 import { GitHubIcon } from "./components/icons";
 import { LogoLoopEditor } from "./components/LogoLoopEditor";
+import { MermaidFlowEditor } from "./components/MermaidFlowEditor";
 import { ProgressBarEditor } from "./components/ProgressBarEditor";
 import { VideoPipEditor } from "./components/VideoPipEditor";
 import { BatchImporter } from "./components/BatchImporter";
@@ -80,6 +82,10 @@ export function App() {
 
   if (activeAsset === logoLoopDefinition.id) {
     return wrap(<LogoLoopEditor onBack={() => navigate("")} />);
+  }
+
+  if (activeAsset === mermaidFlowDefinition.id) {
+    return wrap(<MermaidFlowEditor onBack={() => navigate("")} />);
   }
 
   return wrap(
@@ -154,6 +160,10 @@ export function App() {
         <button className="motion-item" type="button" onClick={() => navigate(logoLoopDefinition.id)}>
           <span className="motion-item-preview logo-loop-mini" aria-hidden="true"><span>✦</span><span>◉</span><span>◆</span><span>✺</span><span>✦</span><span>◉</span></span>
           <span className="motion-item-copy"><strong>Logo Loop</strong></span>
+        </button>
+        <button className="motion-item" type="button" onClick={() => navigate(mermaidFlowDefinition.id)}>
+          <span className="motion-item-preview mermaid-flow-mini" aria-hidden="true"><i>User</i><b>→</b><i>Browser</i><b>→</b><i>API</i></span>
+          <span className="motion-item-copy"><strong>Mermaid Flow</strong></span>
         </button>
       </section>
     </main>,
