@@ -13,6 +13,7 @@ function InstanceEditor({ instance }: { instance: BatchInstance }) {
   const props = { onBack: () => undefined, initialParameters: instance.parameters, initialFormatId: instance.format, initialFiles: instance.files };
   switch (instance.motion) {
     case "card-stack": return <CardStackEditor {...props} />;
+    case "image-lineup": return <CardStackEditor {...props} motion="image-lineup" />;
     case "progress-bar": return <ProgressBarEditor {...props} />;
     case "video-pip": return <VideoPipEditor {...props} />;
     case "chat-dialog": return <ChatDialogEditor {...props} />;

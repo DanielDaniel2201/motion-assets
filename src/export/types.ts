@@ -23,7 +23,7 @@ type ExportRequestBase = {
 };
 
 export type CardStackExportRequest = ExportRequestBase & {
-  motion?: "card-stack";
+  motion?: "card-stack" | "image-lineup";
   parameters: CardStackParameters;
   images: ExportImage[];
 };

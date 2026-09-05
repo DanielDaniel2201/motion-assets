@@ -7,6 +7,7 @@ A browser-local tool for creating animated assets with a real alpha channel — 
 ## Assets
 
 - **Card Stack** — stack 2–8 images, tune order and motion parameters, export.
+- **Image Lineup** — alternate images in from below and above into fixed positions in a centered row.
 - **Progress Bar** — chapter labels on timestamps, adjustable ticks, thickness and color, five aspect ratios.
 - **Chat Dialog** — left/right conversation with avatars, bubble colors, fonts and reveal timing.
 - **Video PiP Drag** — a cursor drags open a video rectangle (up to 15 s), ratio-preserving, silent output.

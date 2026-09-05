@@ -2,6 +2,7 @@ import { blurTextDefinition } from "../assets/blur-text/definition";
 import { cardStackDefinition } from "../assets/card-stack/definition";
 import { chatDialogDefinition, MAX_CHAT_MESSAGES, MAX_MESSAGE_LENGTH } from "../assets/chat-dialog/definition";
 import { countUpDefinition } from "../assets/count-up/definition";
+import { imageLineupDefinition } from "../assets/image-lineup/definition";
 import { logoLoopDefinition } from "../assets/logo-loop/definition";
 import { progressBarDefinition, parseProgressBarParameters } from "../assets/progress-bar/definition";
 import { videoPipDefinition } from "../assets/video-pip/definition";
@@ -21,6 +22,7 @@ export type BatchDocument = { version: 1; instances: BatchInstance[] };
 
 const definitions = {
   "card-stack": cardStackDefinition,
+  "image-lineup": imageLineupDefinition,
   "progress-bar": progressBarDefinition,
   "video-pip": videoPipDefinition,
   "chat-dialog": chatDialogDefinition,
@@ -33,6 +35,7 @@ type MotionId = keyof typeof definitions;
 
 const numberBounds: Record<string, [number, number]> = {
   "card-stack.animationSpeed": [0.6, 1.6], "card-stack.spread": [0.65, 1.3], "card-stack.rotation": [0, 1.5], "card-stack.stagger": [0.06, 0.24], "card-stack.holdDuration": [0.5, 3],
+  "image-lineup.animationSpeed": [0.6, 1.6], "image-lineup.spread": [0.65, 1.3], "image-lineup.rotation": [0, 1.5], "image-lineup.stagger": [0.06, 0.24], "image-lineup.holdDuration": [0.5, 3],
   "video-pip.dragDuration": [0.35, 2], "video-pip.videoDuration": [0.05, 15],
   "logo-loop.duration": [2, 20], "logo-loop.speed": [0.04, 0.5], "logo-loop.logoSize": [0.06, 0.3], "logo-loop.gap": [0.02, 0.25], "logo-loop.fadeEdges": [0, 0.25], "logo-loop.positionY": [0.15, 0.85],
   "progress-bar.duration": [3, 600], "progress-bar.separatorThickness": [0.4, 2.2], "progress-bar.fontSize": [0.5, 2],
@@ -55,7 +58,7 @@ const stringLimits: Record<string, number> = {
 };
 
 const limits: Record<MotionId, { max: number; kind?: "image" | "video"; maxBytes?: number }> = {
-  "card-stack": { max: 8, kind: "image", maxBytes: 25 * 1024 * 1024 }, "video-pip": { max: 1, kind: "video", maxBytes: 200 * 1024 * 1024 }, "logo-loop": { max: 12, kind: "image", maxBytes: 10 * 1024 * 1024 }, "chat-dialog": { max: 2, kind: "image", maxBytes: 10 * 1024 * 1024 },
+  "card-stack": { max: 8, kind: "image", maxBytes: 25 * 1024 * 1024 }, "image-lineup": { max: 8, kind: "image", maxBytes: 25 * 1024 * 1024 }, "video-pip": { max: 1, kind: "video", maxBytes: 200 * 1024 * 1024 }, "logo-loop": { max: 12, kind: "image", maxBytes: 10 * 1024 * 1024 }, "chat-dialog": { max: 2, kind: "image", maxBytes: 10 * 1024 * 1024 },
   "progress-bar": { max: 0 }, "blur-text": { max: 0 }, "count-up": { max: 0 },
 };
 

@@ -4,6 +4,7 @@ import { blurTextDefinition } from "./assets/blur-text/definition";
 import { cardStackDefinition } from "./assets/card-stack/definition";
 import { chatDialogDefinition } from "./assets/chat-dialog/definition";
 import { countUpDefinition } from "./assets/count-up/definition";
+import { imageLineupDefinition } from "./assets/image-lineup/definition";
 import { logoLoopDefinition } from "./assets/logo-loop/definition";
 import { progressBarDefinition } from "./assets/progress-bar/definition";
 import { videoPipDefinition } from "./assets/video-pip/definition";
@@ -51,6 +52,10 @@ export function App() {
 
   if (activeAsset === cardStackDefinition.id) {
     return wrap(<CardStackEditor onBack={() => navigate("")} />);
+  }
+
+  if (activeAsset === imageLineupDefinition.id) {
+    return wrap(<CardStackEditor motion="image-lineup" onBack={() => navigate("")} />);
   }
 
   if (activeAsset === progressBarDefinition.id) {
@@ -104,6 +109,14 @@ export function App() {
           </span>
           <span className="motion-item-copy">
             <strong>Card Stack</strong>
+          </span>
+        </button>
+        <button className="motion-item" type="button" onClick={() => navigate(imageLineupDefinition.id)}>
+          <span className="motion-item-preview image-lineup-mini" aria-hidden="true">
+            <i /><i /><i />
+          </span>
+          <span className="motion-item-copy">
+            <strong>Image Lineup</strong>
           </span>
         </button>
         <button className="motion-item" type="button" onClick={() => navigate(progressBarDefinition.id)}>
