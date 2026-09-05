@@ -14,6 +14,7 @@ A browser-local tool for creating animated assets with a real alpha channel — 
 - **Blur Text** — reveal words from blur with adjustable timing, font, and color.
 - **Count Up** — animate formatted values with prefixes, suffixes, and decimals.
 - **Logo Loop** — loop uploaded SVG/transparent images or the bundled ChatGPT, Claude, Grok, and Gemini logos.
+- **Mermaid Flow** — paste a `flowchart` with `LR`, `RL`, `TD`, `TB`, or `BT` direction and animate its nodes, connections, and arrows in sequence.
 
 All assets share the same preview and export path: what you see is the MOV you get.
 

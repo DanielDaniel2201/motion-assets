@@ -3,9 +3,10 @@ import { cardStackDefinition } from "./card-stack/definition";
 import { chatDialogDefinition } from "./chat-dialog/definition";
 import { countUpDefinition } from "./count-up/definition";
 import { logoLoopDefinition } from "./logo-loop/definition";
+import { mermaidFlowDefinition } from "./mermaid-flow/definition";
 import { progressBarDefinition } from "./progress-bar/definition";
 import { videoPipDefinition } from "./video-pip/definition";
 
-export const motionDefinitions = [cardStackDefinition, progressBarDefinition, videoPipDefinition, chatDialogDefinition, blurTextDefinition, countUpDefinition, logoLoopDefinition] as const;
+export const motionDefinitions = [cardStackDefinition, progressBarDefinition, videoPipDefinition, chatDialogDefinition, blurTextDefinition, countUpDefinition, logoLoopDefinition, mermaidFlowDefinition] as const;
 
 export type MotionId = (typeof motionDefinitions)[number]["id"];

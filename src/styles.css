@@ -233,6 +233,13 @@ button { color: inherit; }
   92%, 100% { --count-up-mini-value: 1000; opacity: 0; transform: translateY(-4px); }
 }
 @keyframes logo-loop-mini { from { transform: translateX(-82px); } to { transform: translateX(-218px); } }
+.mermaid-flow-mini { display: flex; align-items: center; justify-content: center; gap: 7px; }
+.mermaid-flow-mini i { position: static; display: grid; place-items: center; width: 48px; height: 32px; border: 0; border-radius: 6px; background: #000; color: #fff; font-size: 7px; font-style: normal; box-shadow: none; animation: mermaid-node-mini 3s ease infinite both; }
+.mermaid-flow-mini b { font-size: 16px; font-weight: 400; animation: mermaid-edge-mini 3s ease infinite both; }
+.mermaid-flow-mini i:nth-of-type(2), .mermaid-flow-mini b:nth-of-type(1) { animation-delay: .65s; }
+.mermaid-flow-mini i:nth-of-type(3), .mermaid-flow-mini b:nth-of-type(2) { animation-delay: 1.3s; }
+@keyframes mermaid-node-mini { 0%, 12% { opacity: 0; transform: scale(.8); } 28%, 100% { opacity: 1; transform: none; } }
+@keyframes mermaid-edge-mini { 0%, 12% { opacity: 0; transform: scaleX(0); } 28%, 100% { opacity: 1; transform: none; } }
 
 .workspace { height: calc(100vh - 66px); min-height: 0; display: grid; grid-template-columns: 292px minmax(520px, 1fr) 292px; overflow: hidden; }
 .panel { min-width: 0; padding: 28px 24px 22px; background: var(--surface); }
@@ -350,6 +357,8 @@ h2 span { margin-left: 5px; color: #93958d; font-size: 10px; font-weight: 500; l
 
 .motion-text-input { width: 100%; min-height: 160px; margin-top: 24px; resize: vertical; padding: 13px; border: 1px solid #d8dad1; border-radius: 10px; background: #f7f7f3; color: var(--ink); font-size: 13px; line-height: 1.5; }
 .motion-text-input:focus, .number-field input:focus { outline: 2px solid var(--ink); outline-offset: 1px; background: #fff; }
+.mermaid-input { min-height: 300px; font: 11px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre; }
+.input-error { margin: 9px 0 0; color: #a3312b; font-size: 10px; line-height: 1.4; }
 .number-fields { display: grid; gap: 12px; margin-top: 24px; }
 .number-field { display: grid; gap: 6px; color: #55574f; font-size: 11px; }
 .number-field input { width: 100%; padding: 9px 10px; border: 1px solid #d8dad1; border-radius: 8px; background: #f7f7f3; color: var(--ink); }
@@ -557,6 +566,6 @@ h2 span { margin-left: 5px; color: #93958d; font-size: 10px; font-weight: 500; l
   .video-pip-mini-window { transform: scale(1); animation: none; }
   .video-pip-mini-cursor { left: 84%; top: 57%; opacity: 1; animation: none; }
   .chat-dialog-mini i, .chat-dialog-mini > span { opacity: 1; transform: none; animation: none; }
-  .blur-text-mini span, .count-up-mini span, .logo-loop-mini { opacity: 1; filter: none; transform: none; animation: none; }
+  .blur-text-mini span, .count-up-mini span, .logo-loop-mini, .mermaid-flow-mini i, .mermaid-flow-mini b { opacity: 1; filter: none; transform: none; animation: none; }
   .count-up-mini span { --count-up-mini-value: 1000; }
 }

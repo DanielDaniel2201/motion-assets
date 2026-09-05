@@ -12,6 +12,8 @@ import { imageLineupDefinition } from "../assets/image-lineup/definition";
 import { renderImageLineupFrame } from "../assets/image-lineup/render";
 import { logoLoopDefinition } from "../assets/logo-loop/definition";
 import { renderLogoLoopFrame } from "../assets/logo-loop/render";
+import { mermaidFlowDefinition } from "../assets/mermaid-flow/definition";
+import { renderMermaidFlowFrame } from "../assets/mermaid-flow/render";
 import { progressBarDefinition } from "../assets/progress-bar/definition";
 import { renderProgressBarFrame } from "../assets/progress-bar/render";
 import { VIDEO_PIP_DRAG_START, videoPipDefinition } from "../assets/video-pip/definition";
@@ -57,6 +59,12 @@ function isLogoLoopRequest(
   request: ExportRequest,
 ): request is Extract<ExportRequest, { motion: "logo-loop" }> {
   return request.motion === "logo-loop";
+}
+
+function isMermaidFlowRequest(
+  request: ExportRequest,
+): request is Extract<ExportRequest, { motion: "mermaid-flow" }> {
+  return request.motion === "mermaid-flow";
 }
 
 let pendingFrame: { id: string; resolve: (bitmap: ImageBitmap) => void } | null = null;
@@ -133,6 +141,9 @@ async function runExport(request: ExportRequest) {
     } else if (isCountUpRequest(request)) {
       duration = countUpDefinition.getDuration(request.parameters, 0);
       draw = (time) => renderCountUpFrame(context, request.width, request.height, request.parameters, time);
+    } else if (isMermaidFlowRequest(request)) {
+      duration = mermaidFlowDefinition.getDuration(request.parameters, 0);
+      draw = (time) => renderMermaidFlowFrame(context, request.width, request.height, request.parameters, time);
     } else if (request.motion === "image-lineup") {
       if (request.images.length < imageLineupDefinition.minInputCount || request.images.length > imageLineupDefinition.maxInputCount) {
         throw new Error("Image Lineup requires 2–8 images.");
